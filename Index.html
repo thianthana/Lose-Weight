@@ -33,7 +33,7 @@
 
   <div id="loadingOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] hidden flex items-center justify-center">
     <div class="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center">
-      <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600 mb-3"></i>
+      <i class="fa-solid fa-spinner animate-spin text-4xl text-indigo-600 mb-3"></i>
       <p class="font-bold text-gray-700" id="loadingText">กำลังประมวลผล...</p>
     </div>
   </div>
@@ -41,7 +41,7 @@
   <div id="autoLogoutModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] hidden flex items-center justify-center">
     <div class="bg-white p-8 rounded-[2rem] shadow-2xl text-center max-w-sm mx-4 transform scale-95 transition-transform duration-300">
       <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500 text-3xl">
-        <i class="fa-solid fa-hourglass-half fa-spin-pulse"></i>
+        <i class="fa-solid fa-hourglass-half animate-pulse"></i>
       </div>
       <h3 class="text-2xl font-bold text-gray-800 mb-2">เซสชันกำลังหมดอายุ</h3>
       <p class="text-gray-500 mb-6">คุณไม่ได้ใช้งานระบบเป็นเวลา 15 นาที ระบบจะออกจากระบบอัตโนมัติในอีก <br><span id="countdownTimer" class="text-3xl font-black text-rose-500">30</span> วินาที</p>
@@ -122,33 +122,32 @@
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-center items-center mb-6 z-10 relative">
             <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
               <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">BMR พื้นฐาน</p>
-              <p class="text-2xl font-black text-gray-200" id="energyBMR"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+              <p class="text-2xl font-black text-gray-200" id="energyBMR"><i class="fa-solid fa-spinner animate-spin text-sm"></i></p>
             </div>
             <div class="text-xl text-gray-600 hidden lg:block"><i class="fa-solid fa-plus"></i></div>
             <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
               <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">ออกกำลังกาย</p>
-              <p class="text-2xl font-black text-orange-400" id="dashBurnCal"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+              <p class="text-2xl font-black text-orange-400" id="dashBurnCal"><i class="fa-solid fa-spinner animate-spin text-sm"></i></p>
             </div>
             <div class="text-xl text-gray-600 hidden lg:block"><i class="fa-solid fa-equals"></i></div>
             <div class="bg-indigo-500/20 p-4 rounded-2xl border border-indigo-500/30">
               <p class="text-xs text-indigo-300 font-bold mb-1 uppercase tracking-wider">เผาผลาญรวมวันนี้</p>
-              <p class="text-3xl font-black text-indigo-400" id="energyTotalBurn"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+              <p class="text-3xl font-black text-indigo-400" id="energyTotalBurn"><i class="fa-solid fa-spinner animate-spin text-sm"></i></p>
             </div>
-            
             <div class="col-span-2 lg:col-span-2 bg-gradient-to-br from-emerald-500 to-teal-500 p-4 rounded-2xl shadow-lg transform lg:scale-110 ml-0 lg:ml-4">
               <p class="text-xs text-emerald-100 font-bold mb-1 uppercase tracking-wider">โควต้าทานอาหาร (Target)</p>
-              <p class="text-3xl font-black text-white" id="energyTarget"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+              <p class="text-3xl font-black text-white" id="energyTarget"><i class="fa-solid fa-spinner animate-spin text-sm"></i></p>
             </div>
           </div>
 
           <div class="bg-gray-800/50 rounded-2xl p-5 border border-gray-700 mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
             <div class="md:col-span-3 text-center md:text-left">
               <p class="text-sm text-gray-400 font-bold mb-1">ทานไปแล้ว</p>
-              <p class="text-3xl font-black text-emerald-400"><span id="dashFoodCal"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span> <span class="text-base font-normal text-gray-500">kcal</span></p>
+              <p class="text-3xl font-black text-emerald-400"><span id="dashFoodCal"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span> <span class="text-base font-normal text-gray-500">kcal</span></p>
             </div>
             <div class="md:col-span-9" id="energyAnalysisBox">
               <div class="p-4 rounded-xl border flex items-center justify-center gap-3 bg-gray-700/50 border-gray-600 text-gray-400">
-                <i class="fa-solid fa-circle-notch fa-spin"></i> กำลังวิเคราะห์ข้อมูล...
+                <i class="fa-solid fa-spinner animate-spin"></i> กำลังวิเคราะห์ข้อมูล...
               </div>
             </div>
           </div>
@@ -158,30 +157,30 @@
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
             <h3 class="text-gray-500 font-bold mb-2 text-sm z-10">น้ำหนักปัจจุบัน</h3>
-            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashWeight"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-xl font-normal text-gray-400 ml-1">kg</span></p>
+            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashWeight"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span><span class="text-xl font-normal text-gray-400 ml-1">kg</span></p>
             <p class="text-sm bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-bold z-10"><i class="fa-solid fa-arrow-down mr-1"></i> ลดไป <span id="dashLost">0</span> kg</p>
           </div>
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
             <h3 class="text-gray-500 font-bold mb-2 text-sm z-10">BMI (ดัชนีมวลกาย)</h3>
-            <p class="text-5xl font-black text-gray-800 my-2 z-10" id="dashBMI"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+            <p class="text-5xl font-black text-gray-800 my-2 z-10" id="dashBMI"><i class="fa-solid fa-spinner animate-spin text-sm"></i></p>
             <p id="dashBMICat" class="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold z-10">-</p>
           </div>
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
             <h3 class="text-gray-500 font-bold mb-2 text-sm z-10">Body Fat</h3>
-            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashFat"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-xl font-normal text-gray-400 ml-1">%</span></p>
+            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashFat"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span><span class="text-xl font-normal text-gray-400 ml-1">%</span></p>
           </div>
         </div>
 
         <div class="glass-card p-8">
           <h3 class="text-lg font-extrabold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-fingerprint text-indigo-500 mr-2 text-xl"></i> สถิติร่างกายเชิงลึก</h3>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
-            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100"><p class="text-xs text-gray-400 font-bold mb-1"><i class="fa-solid fa-dumbbell mr-1"></i> กล้ามเนื้อ</p><p class="text-2xl font-bold text-gray-800"><span id="dashMuscle"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-gray-500 ml-1">kg</span></p></div>
-            <div class="bg-orange-50/50 p-5 rounded-2xl border border-orange-100"><p class="text-xs text-orange-400 font-bold mb-1"><i class="fa-solid fa-burger mr-1"></i> ไขมันช่องท้อง</p><p class="text-2xl font-bold text-orange-800">Lv <span id="dashVisceral"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span></p></div>
-            <div class="bg-cyan-50/50 p-5 rounded-2xl border border-cyan-100"><p class="text-xs text-cyan-500 font-bold mb-1"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ</p><p class="text-2xl font-bold text-cyan-800"><span id="dashWater"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-cyan-600 ml-1">%</span></p></div>
-            <div class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100"><p class="text-xs text-rose-400 font-bold mb-1"><i class="fa-solid fa-egg mr-1"></i> โปรตีน</p><p class="text-2xl font-bold text-rose-800"><span id="dashProtein"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-rose-600 ml-1">%</span></p></div>
-            <div class="bg-stone-50/50 p-5 rounded-2xl border border-stone-200"><p class="text-xs text-stone-500 font-bold mb-1"><i class="fa-solid fa-bone mr-1"></i> มวลกระดูก</p><p class="text-2xl font-bold text-stone-800"><span id="dashBone"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-stone-600 ml-1">kg</span></p></div>
+            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100"><p class="text-xs text-gray-400 font-bold mb-1"><i class="fa-solid fa-dumbbell mr-1"></i> กล้ามเนื้อ</p><p class="text-2xl font-bold text-gray-800"><span id="dashMuscle"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span><span class="text-sm font-normal text-gray-500 ml-1">kg</span></p></div>
+            <div class="bg-orange-50/50 p-5 rounded-2xl border border-orange-100"><p class="text-xs text-orange-400 font-bold mb-1"><i class="fa-solid fa-burger mr-1"></i> ไขมันช่องท้อง</p><p class="text-2xl font-bold text-orange-800"><span id="dashVisceral"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span></p></div>
+            <div class="bg-cyan-50/50 p-5 rounded-2xl border border-cyan-100"><p class="text-xs text-cyan-500 font-bold mb-1"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ</p><p class="text-2xl font-bold text-cyan-800"><span id="dashWater"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span><span class="text-sm font-normal text-cyan-600 ml-1">%</span></p></div>
+            <div class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100"><p class="text-xs text-rose-400 font-bold mb-1"><i class="fa-solid fa-egg mr-1"></i> โปรตีน</p><p class="text-2xl font-bold text-rose-800"><span id="dashProtein"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span><span class="text-sm font-normal text-rose-600 ml-1">%</span></p></div>
+            <div class="bg-stone-50/50 p-5 rounded-2xl border border-stone-200"><p class="text-xs text-stone-500 font-bold mb-1"><i class="fa-solid fa-bone mr-1"></i> มวลกระดูก</p><p class="text-2xl font-bold text-stone-800"><span id="dashBone"><i class="fa-solid fa-spinner animate-spin text-sm"></i></span><span class="text-sm font-normal text-stone-600 ml-1">kg</span></p></div>
           </div>
         </div>
       </div>
@@ -291,7 +290,7 @@
         <div class="glass-card p-10">
           <div class="text-center mb-10 border-b border-gray-100 pb-8">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-2">อัปเดตข้อมูล Smart Scale</h2>
-            <p class="text-gray-500 font-medium">ส่วนนี้ถูกปรับให้เหลือเฉพาะค่าที่อ่านได้จากเครื่องชั่งโดยตรง BMR และอายุการเผาผลาญระบบจะคำนวณให้แล้ว</p>
+            <p class="text-gray-500 font-medium">บันทึกข้อมูลจากเครื่องชั่งเพื่อให้สถิติบน Dashboard แม่นยำที่สุด</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
             <div class="space-y-6">
@@ -378,11 +377,7 @@
         currentUser = JSON.parse(savedUser); document.getElementById('loginSection').style.display = 'none';
         document.getElementById('appSection').classList.remove('hidden'); document.getElementById('bodyContainer').classList.remove('bg-animate');
         document.getElementById('userNameDisplay').innerText = currentUser.name; document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
-        
-        // โหลดเป้าหมายจากเครื่อง
-        const savedGoal = localStorage.getItem('woodyDietGoal');
-        if(savedGoal) document.getElementById('dietGoalSelect').value = savedGoal;
-        
+        const savedGoal = localStorage.getItem('woodyDietGoal'); if(savedGoal) document.getElementById('dietGoalSelect').value = savedGoal;
         updateGreeting(); refreshDashboard(); resetInactivityTimer();
       }
     });
@@ -447,18 +442,22 @@
         if(data.foodDB) globalFoodDB = data.foodDB; if(data.exerciseDB) globalExDB = data.exerciseDB;
         if(data.dashboard) {
           const db = data.dashboard;
-          ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein'].forEach(id => { let el = document.getElementById(`dash${id}`); if(el) el.innerText = db[id.toLowerCase()] || db[id.charAt(0).toLowerCase() + id.slice(1)]; });
+          // อัปเดตข้อมูลบนหน้าจอ ลบช่องว่างให้หายไป
+          ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein'].forEach(id => { 
+            let el = document.getElementById(`dash${id}`); 
+            if(el) el.innerText = db[id.toLowerCase()] || db[id.charAt(0).toLowerCase() + id.slice(1)]; 
+          });
           
-          // ตัวแปรพิเศษที่ต้องอัปเดต 2 ที่
-          document.getElementById('energyBMR').innerText = db.bmr;
+          let bmrEl = document.getElementById('energyBMR'); if(bmrEl) bmrEl.innerText = db.bmr;
           
-          document.getElementById('dashLost').innerText = db.weightLost.toFixed(1); document.getElementById('dashBMICat').innerText = db.bmiCategory;
+          document.getElementById('dashLost').innerText = db.weightLost.toFixed(1); 
+          document.getElementById('dashBMICat').innerText = db.bmiCategory;
         }
         updateUI(data.food, data.exercise);
       } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ", 'error'); } finally { hideLoading(); }
     }
 
-    // ================= วิเคราะห์พลังงานทางวิทยาศาสตร์ =================
+    // ================= วิเคราะห์พลังงาน =================
     function saveGoalAndAnalyze() {
       const goal = document.getElementById('dietGoalSelect').value;
       localStorage.setItem('woodyDietGoal', goal);
@@ -466,7 +465,10 @@
     }
 
     function analyzeEnergySafety() {
-      const bmr = parseInt(document.getElementById('energyBMR').innerText) || 2000;
+      const bmrText = document.getElementById('energyBMR').innerText;
+      const bmr = parseInt(bmrText) || 0;
+      if (bmr === 0) return; // ถ้ายอด BMR ยังไม่มา รอโหลดก่อน
+
       const food = parseInt(document.getElementById('dashFoodCal').innerText) || 0;
       const exercise = parseInt(document.getElementById('dashBurnCal').innerText) || 0;
       const goal = document.getElementById('dietGoalSelect').value || 'normal';
@@ -519,7 +521,7 @@
 
     // ================= Leaderboard =================
     async function loadLeaderboard() {
-      const box = document.getElementById('leaderboardContainer'); box.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-3xl"></i></div>';
+      const box = document.getElementById('leaderboardContainer'); box.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner animate-spin text-indigo-500 text-3xl"></i></div>';
       try { const res = await callAPI('getLeaderboard'); if (res.leaderboard) renderLeaderboard(res.leaderboard); } catch (e) { box.innerHTML = '<div class="text-center py-10 text-rose-500 font-bold">โหลดไม่สำเร็จ</div>'; }
     }
     function renderLeaderboard(data) {
@@ -613,30 +615,30 @@
 
     function updateUI(foodData, exData) {
       if(foodData) {
-        document.getElementById('dashFoodCal').innerText = foodData.total;
+        document.getElementById('dashFoodCal').innerText = foodData.total; 
         const tb = document.getElementById('foodTableBody'); tb.innerHTML = '';
         if(foodData.meals.length === 0) tb.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl m-3">ยังไม่มีรายการอาหารวันนี้</div>';
         foodData.meals.forEach(m => {
           tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-blue-200 transition mx-3">
             <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i class="fa-solid fa-utensils"></i></div><p class="font-bold text-gray-700">${m.name}</p></div>
-            <div class="flex items-center gap-4"><p class="text-xl font-black text-blue-600">${m.cal}</p><button onclick="deleteData('deleteFood', '${m.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
+            <div class="flex items-center gap-4"><p class="text-xl font-black text-blue-600">${m.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteFood', '${m.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
       if(exData) {
-        document.getElementById('dashBurnCal').innerText = exData.total;
+        document.getElementById('dashBurnCal').innerText = exData.total; 
         const tb = document.getElementById('exTableBody'); tb.innerHTML = '';
         if(exData.activities.length === 0) tb.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl m-3">ยังไม่มีกิจกรรมวันนี้</div>';
         exData.activities.forEach(a => {
           tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-orange-200 transition mx-3">
-            <div class="flex items-center gap-4">${getExIcon(a.name)}<div><p class="font-bold text-gray-700">${a.name}</p><p class="text-xs font-medium text-gray-500 mt-0.5"><i class="fa-regular fa-clock mr-1"></i> ${a.duration} นาที | HR: ${a.hr}</p></div></div>
-            <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal}</p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
+            <div class="flex items-center gap-4">${getExIcon(a.name)}<div><p class="font-bold text-gray-700">${a.name}</p><p class="text-xs font-medium text-gray-500 mt-0.5"><i class="fa-regular fa-clock mr-1"></i> ${a.duration} นาที &nbsp;|&nbsp; <i class="fa-solid fa-heart-pulse mr-1"></i> HR: ${a.hr}</p></div></div>
+            <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
       
       const f = parseInt(document.getElementById('dashFoodCal').innerText)||0, b = parseInt(document.getElementById('dashBurnCal').innerText)||0;
       document.getElementById('dashNetCal').innerText = f - b;
       
-      // เรียกใช้วิเคราะห์ความปลอดภัยทันที
+      // เรียกใช้การวิเคราะห์ความปลอดภัยทันทีที่ตัวเลขเปลี่ยน
       analyzeEnergySafety();
     }
 
