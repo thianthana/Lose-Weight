@@ -6,7 +6,7 @@
   <title>Health Tracking Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Kanit', sans-serif; background-color: #f3f6f9; }
     .glass-card { background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-radius: 1.25rem; border: 1px solid #edf2f7; }
@@ -14,81 +14,55 @@
     .sidebar-item { transition: all 0.2s; cursor: pointer; border-right: 3px solid transparent; }
     input[type="password"]::-ms-reveal { display: none; }
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    
     .bg-animate { background: linear-gradient(-45deg, #4f46e5, #3b82f6, #06b6d4, #8b5cf6); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    
     .toast-enter { animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-
-    /* Login Animations */
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    .animate-float { animation: float 4s ease-in-out infinite; }
-    .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .app-ready { animation: appFadeIn 0.8s ease-out forwards; }
+    @keyframes appFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="h-screen flex items-center justify-center overflow-hidden transition-colors duration-1000 bg-animate" id="bodyContainer">
+<body class="h-screen flex items-center justify-center overflow-hidden transition-colors duration-500 bg-animate" id="bodyContainer">
 
-  <div id="loadingOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center transition-all duration-300 opacity-0">
-    <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center min-w-[200px] transform transition-transform scale-95" id="loadingBox">
-      <i class="fa-solid fa-spinner fa-spin text-4xl text-indigo-600 mb-3"></i>
-      <p class="font-bold text-gray-800 text-sm" id="loadingText">กำลังประมวลผล...</p>
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] hidden flex-col items-center justify-center transition-all duration-500 opacity-0">
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl flex flex-col items-center min-w-[280px] transform transition-transform duration-500 scale-95" id="loadingBox">
+      <div class="relative w-20 h-20 mb-6">
+        <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+        <div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+        <i class="fa-solid fa-cloud-arrow-down absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl text-indigo-600"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">โปรดรอสักครู่</h3>
+      <p class="font-medium text-gray-500 text-sm" id="loadingText">กำลังดึงข้อมูลของคุณอยู่...</p>
     </div>
   </div>
 
   <div id="toastContainer" class="fixed top-6 right-6 z-[110] flex flex-col gap-3"></div>
 
   <div id="autoLogoutModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] hidden flex items-center justify-center transition-opacity duration-300 opacity-0">
-    <div class="bg-white p-6 rounded-2xl shadow-2xl text-center max-w-sm mx-4 transform scale-95 transition-transform" id="autoLogoutBox">
-      <i class="fa-solid fa-hourglass-half fa-spin text-rose-500 text-3xl mb-3"></i>
+    <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm mx-4 transform scale-95 transition-transform" id="autoLogoutBox">
+      <i class="fa-solid fa-hourglass-half fa-spin text-rose-500 text-4xl mb-4"></i>
       <h3 class="text-xl font-bold mb-2">เซสชันกำลังหมดอายุ</h3>
-      <p class="text-sm text-gray-500 mb-5">ระบบจะออกอัตโนมัติในอีก <span id="countdownTimer" class="font-black text-rose-500 text-xl">30</span> วินาที</p>
-      <button onclick="continueSession()" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl shadow-md text-sm hover:bg-indigo-700 transition">ใช้เว็บไซต์ต่อ</button>
+      <p class="text-sm text-gray-500 mb-6">ระบบจะออกอัตโนมัติในอีก <span id="countdownTimer" class="font-black text-rose-500 text-2xl">30</span> วินาที</p>
+      <button onclick="continueSession()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md text-sm hover:bg-indigo-700 transition">ใช้เว็บไซต์ต่อ</button>
     </div>
   </div>
 
-  <div id="loginSection" class="relative w-full max-w-md mx-4 transition-all duration-1000 ease-in-out">
-    <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-400 rounded-3xl blur-lg opacity-40 animate-pulse duration-1000"></div>
-    
-    <div class="relative bg-white/95 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20">
-      
-      <div id="loginForm" class="transition-all duration-500">
-        <div class="text-center mb-8 animate-float">
-          <div class="bg-gradient-to-tr from-indigo-600 to-blue-500 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_0_25px_rgba(79,70,229,0.5)]">
-            <i class="fa-solid fa-bolt text-4xl text-white"></i>
-          </div>
-          <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">Tracking Pro</h2>
-          <p class="text-sm text-gray-500 font-medium mt-2 tracking-wide uppercase">Unlock your potential</p>
-        </div>
-        <div class="relative mb-8">
-          <input type="password" id="passcodeInput" placeholder="ระบุรหัสผ่านของคุณ..." class="w-full px-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 outline-none text-center text-lg font-black tracking-widest focus:border-indigo-500 focus:bg-white transition-all shadow-inner text-indigo-900 placeholder-gray-400">
-          <button onclick="togglePassword()" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition"><i id="eyeIcon" class="fa-solid fa-eye-slash text-xl"></i></button>
-        </div>
-        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-xl hover:bg-indigo-700 hover:shadow-indigo-500/40 active:scale-95 transition-all text-lg flex justify-center items-center gap-2">
-          เข้าสู่ระบบ <i class="fa-solid fa-arrow-right-to-bracket"></i>
-        </button>
-      </div>
-
-      <div id="welcomeScreen" class="hidden flex-col items-center justify-center py-6 text-center opacity-0 transition-opacity duration-500">
-        <div class="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.4)] animate-fade-in-up">
-          <i class="fa-solid fa-check text-5xl text-emerald-500"></i>
-        </div>
-        <h2 class="text-2xl font-extrabold text-gray-800 mb-3 animate-fade-in-up" style="animation-delay: 0.1s;" id="welcomeName">ยินดีต้อนรับครับ...</h2>
-        <div class="flex items-center justify-center gap-3 text-indigo-500 font-bold bg-indigo-50 px-5 py-2.5 rounded-full animate-fade-in-up" style="animation-delay: 0.2s;">
-          <i class="fa-solid fa-circle-notch fa-spin text-xl"></i> 
-          <span>กำลังเตรียมแดชบอร์ด...</span>
-        </div>
-      </div>
-
+  <div id="loginSection" class="bg-white/95 backdrop-blur-xl p-8 w-full max-w-md mx-4 rounded-3xl shadow-2xl relative transition-all duration-500">
+    <div class="text-center mb-8">
+      <div class="bg-gradient-to-tr from-indigo-600 to-blue-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"><i class="fa-solid fa-bolt text-3xl text-white"></i></div>
+      <h2 class="text-2xl font-extrabold text-gray-800 tracking-tight">Tracking Pro</h2>
     </div>
+    <div class="relative mb-6">
+      <input type="password" id="passcodeInput" placeholder="ระบุรหัสผ่าน..." class="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50 outline-none text-center text-base font-bold tracking-widest focus:border-indigo-500 transition">
+      <button onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"><i id="eyeIcon" class="fa-solid fa-eye-slash"></i></button>
+    </div>
+    <button onclick="handleLogin()" id="loginBtn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 active:scale-95 transition-all text-sm">เข้าสู่ระบบ</button>
   </div>
 
-  <div id="appSection" class="hidden w-full h-full flex flex-col md:flex-row bg-[#f3f6f9] opacity-0 transition-opacity duration-1000">
+  <div id="appSection" class="hidden w-full h-full flex flex-col md:flex-row bg-[#f3f6f9] opacity-0">
     <aside class="w-full md:w-60 bg-white border-r border-gray-100 flex flex-col z-10 shadow-sm text-sm">
       <div class="p-6 text-center border-b border-gray-50">
         <div class="w-12 h-12 bg-indigo-100 rounded-xl mx-auto flex items-center justify-center mb-2 text-xl font-black text-indigo-600" id="userNameInitial">W</div>
@@ -108,9 +82,10 @@
     </aside>
 
     <main class="flex-1 p-4 md:p-8 overflow-y-auto relative bg-[#f8fafc] custom-scrollbar">
+      
       <div id="view-dashboard" class="max-w-5xl mx-auto space-y-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 bg-white p-6 rounded-2xl border shadow-sm">
-          <div><h2 class="text-2xl font-extrabold text-gray-800" id="greetingText">กำลังโหลด...</h2><p class="text-gray-500 text-sm mt-1">วันนี้คุณทำได้ดีมาก 🚀</p></div>
+          <div><h2 class="text-2xl font-extrabold text-gray-800" id="greetingText">สวัสดี...</h2><p class="text-gray-500 text-sm mt-1">วันนี้คุณทำได้ดีมาก 🚀</p></div>
           <span class="mt-3 md:mt-0 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100" id="currentDateDisplay"></span>
         </div>
 
@@ -132,12 +107,12 @@
           </div>
 
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center items-center">
-            <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BMR</p><p class="text-xl font-black text-gray-200" id="analysisBMR"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></p></div>
+            <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BMR</p><p class="text-xl font-black text-gray-200" id="analysisBMR">0</p></div>
             <div class="lg:block hidden text-gray-600 text-sm"><i class="fa-solid fa-plus"></i></div>
             <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BURN</p><p class="text-xl font-black text-orange-400" id="analysisBurnCal">0</p></div>
             <div class="lg:block hidden text-gray-600 text-sm"><i class="fa-solid fa-equals"></i></div>
-            <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20"><p class="text-[9px] text-indigo-300 font-bold mb-1 uppercase">TOTAL</p><p class="text-2xl font-black text-indigo-400" id="analysisTotalBurn">-</p></div>
-            <div class="col-span-2 bg-gradient-to-br from-emerald-500 to-teal-500 p-3 rounded-xl shadow-md border border-emerald-400/50"><p class="text-[9px] text-emerald-100 font-bold mb-1 uppercase">TARGET</p><p class="text-3xl font-black text-white" id="analysisTarget">-</p></div>
+            <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20"><p class="text-[9px] text-indigo-300 font-bold mb-1 uppercase">TOTAL</p><p class="text-2xl font-black text-indigo-400" id="analysisTotalBurn">0</p></div>
+            <div class="col-span-2 bg-gradient-to-br from-emerald-500 to-teal-500 p-3 rounded-xl shadow-md border border-emerald-400/50"><p class="text-[9px] text-emerald-100 font-bold mb-1 uppercase">TARGET</p><p class="text-3xl font-black text-white" id="analysisTarget">0</p></div>
           </div>
 
           <div class="bg-gray-800/50 rounded-xl p-4 mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
@@ -147,9 +122,9 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">น้ำหนักปัจจุบัน</h3><p class="text-4xl font-black text-gray-800"><span id="dashWeight">-</span><small class="text-base font-normal ml-1 text-gray-400">kg</small></p><span class="text-xs text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full font-bold mt-2 inline-block">ลดไป <span id="dashLost">0</span> kg</span></div>
-          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">BMI</h3><p class="text-4xl font-black text-gray-800" id="dashBMI">-</p><span id="dashBMICat" class="text-[10px] bg-gray-50 border px-2 py-1 rounded-full font-bold mt-2 inline-block">-</span></div>
-          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Body Fat</h3><p class="text-4xl font-black text-gray-800"><span id="dashFat">-</span><small class="text-base font-normal ml-1 text-gray-400">%</small></p></div>
+          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">น้ำหนักปัจจุบัน</h3><p class="text-4xl font-black text-gray-800"><span id="dashWeight">0</span><small class="text-base font-normal ml-1 text-gray-400">kg</small></p><span class="text-xs text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full font-bold mt-2 inline-block">ลดไป <span id="dashLost">0</span> kg</span></div>
+          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">BMI</h3><p class="text-4xl font-black text-gray-800" id="dashBMI">0</p><span id="dashBMICat" class="text-[10px] bg-gray-50 border px-2 py-1 rounded-full font-bold mt-2 inline-block">-</span></div>
+          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Body Fat</h3><p class="text-4xl font-black text-gray-800"><span id="dashFat">0</span><small class="text-base font-normal ml-1 text-gray-400">%</small></p></div>
         </div>
 
         <div class="glass-card p-6"><h3 class="text-base font-extrabold text-gray-800 mb-4 uppercase"><i class="fa-solid fa-fingerprint text-indigo-500 mr-2"></i> สถิติร่างกาย</h3><div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center" id="statGrid"></div></div>
@@ -239,7 +214,8 @@
           <h2 class="text-2xl font-extrabold mb-1 text-gray-800">อัปเดต Smart Scale</h2>
           <p class="text-gray-500 text-xs mb-8">บันทึกค่าที่อ่านได้จากเครื่องชั่งโดยตรง</p>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="healthInputGrid"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="healthInputGrid">
+             </div>
           <button onclick="updateHealth()" id="updateHealthBtn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 active:scale-95 transition text-sm">บันทึกข้อมูลร่างกาย</button>
         </div>
       </div>
@@ -254,7 +230,7 @@
     </main>
   </div>
 
-  <div id="profileModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150] hidden flex-col items-center justify-center transition-opacity duration-300 opacity-0">
+  <div id="profileModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150] hidden flex-col items-center justify-center transition-all duration-300 opacity-0">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm mx-4 transform scale-95 transition-all duration-300" id="profileModalContent">
       <h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fa-solid fa-user-gear text-indigo-500 mr-2"></i> จัดการโปรไฟล์</h3>
       <div class="space-y-4 mb-6 text-left">
@@ -267,30 +243,63 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwsc-nOk7AQ1sfehCshuYVfxEu8KDNGvYopQle5jdD5md_gWi6OxQ7qxwHHxMGdzp5C/exec"; 
+    // =====================================
+    // ข้อมูลเริ่มต้น & Setup
+    // =====================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbyYv_LR2CPfdeXjOVH7_MV4r4ETlQEWXH5bt9F25AV3vlSUGZtNi1onxTxG8aejsogk/exec"; 
     let currentUser = null, globalFoodDB = [], globalExDB = [];
     const goalLabels = { maintain: 'รักษาน้ำหนัก', normal: 'ลดปกติ (-500 kcal)', hard: 'ลดโหด (-800 kcal)' };
 
+    // ไอคอนออกกำลังกายถูกประกาศไว้ด้านบนสุด ป้องกัน Error 'getExIcon is not defined'
+    const exIcons = [ 
+      { keys: ["วิ่ง", "ลู่"], bg: "bg-blue-100 text-blue-500 fa-person-running" }, 
+      { keys: ["เดิน"], bg: "bg-emerald-100 text-emerald-500 fa-person-walking" }, 
+      { keys: ["เวท", "น้ำหนัก", "ดัมเบล"], bg: "bg-purple-100 text-purple-500 fa-dumbbell" }, 
+      { keys: ["ว่าย"], bg: "bg-cyan-100 text-cyan-500 fa-person-swimming" }, 
+      { keys: ["จักรยาน", "ปั่น"], bg: "bg-orange-100 text-orange-500 fa-person-biking" }, 
+      { keys: ["โยคะ", "ยืด"], bg: "bg-teal-100 text-teal-500 fa-child-reaching" }, 
+      { keys: ["เต้น", "แอโรบิค"], bg: "bg-rose-100 text-rose-500 fa-music" } 
+    ];
+
+    function getExIcon(n) { 
+        let m = exIcons.find(i => i.keys.some(k => n.toLowerCase().includes(k)));
+        let c = m ? m.bg : "bg-slate-100 text-slate-500 fa-fire";
+        let p = c.split(' '); 
+        return `<div class="w-10 h-10 rounded-full flex items-center justify-center ${p[0]} ${p[1]}"><i class="fa-solid ${p[2]} text-sm"></i></div>`; 
+    }
+
+    // =====================================
+    // UI Helpers & Loading
+    // =====================================
     const setT = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
     const setH = (id, val) => { const el = document.getElementById(id); if(el) el.innerHTML = val; };
     const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
     
-    // โหลดหน้าปกติ
-    const showL = (t) => { 
-        setT('loadingText', t); 
-        const o = document.getElementById('loadingOverlay'); 
-        o.classList.remove('hidden'); o.classList.add('flex'); 
-        requestAnimationFrame(() => { o.classList.remove('opacity-0'); document.getElementById('loadingBox').classList.remove('scale-95'); document.getElementById('loadingBox').classList.add('scale-100'); }); 
-    };
-    const hideL = () => { 
-        const o = document.getElementById('loadingOverlay'); 
-        o.classList.add('opacity-0'); document.getElementById('loadingBox').classList.add('scale-95'); document.getElementById('loadingBox').classList.remove('scale-100');
-        setTimeout(() => { o.classList.add('hidden'); o.classList.remove('flex'); }, 300); 
-    };
+    // โหลดดิ้งใหม่แบบป้องกันการบังคับปิด
+    let loadingCount = 0;
+    function showL(t) { 
+        loadingCount++;
+        setT('loadingText', t || "กำลังโหลดข้อมูล..."); 
+        const o = document.getElementById('loadingOverlay');
+        o.classList.remove('hidden'); o.classList.add('flex');
+        requestAnimationFrame(() => o.classList.remove('opacity-0'));
+    }
+    
+    function hideL() { 
+        loadingCount--;
+        if(loadingCount <= 0) {
+            loadingCount = 0;
+            const o = document.getElementById('loadingOverlay');
+            o.classList.add('opacity-0');
+            setTimeout(() => { 
+                if(loadingCount === 0) { o.classList.add('hidden'); o.classList.remove('flex'); }
+            }, 300);
+        }
+    }
     
     function showToast(msg, type='success') {
       const tc = document.getElementById('toastContainer'); const t = document.createElement('div');
-      t.className = `bg-white p-3 rounded-xl shadow-xl flex items-center gap-3 border-l-4 ${type==='success'?'border-emerald-500':'border-rose-500'} min-w-[250px] toast-enter text-sm z-[9999] relative`;
+      t.className = `bg-white p-3 rounded-xl shadow-xl flex items-center gap-3 border-l-4 ${type==='success'?'border-emerald-500':'border-rose-500'} min-w-[250px] toast-enter text-sm`;
       t.innerHTML = `<div class="w-8 h-8 rounded-full ${type==='success'?'bg-emerald-100 text-emerald-500':'bg-rose-100 text-rose-500'} flex items-center justify-center text-sm flex-shrink-0"><i class="fa-solid ${type==='success'?'fa-check':'fa-exclamation'}"></i></div> <p class="font-bold text-gray-700">${msg}</p>`;
       tc.appendChild(t); setTimeout(() => { t.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => t.remove(), 400); }, 3000);
     }
@@ -310,77 +319,58 @@
       if(name === 'dashboard') updateGreeting(); if(name === 'competition') loadLeaderboard();
     }
 
-    // ================ ฟังก์ชันตอน Login โฉมใหม่ ================
+    // =====================================
+    // Core Functions (API & Init)
+    // =====================================
+    async function callAPI(a, p={}) {
+      try { 
+        const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: a, ...p }) }); 
+        const d = await r.json(); 
+        if(!d.success && d.message) throw new Error(d.message); 
+        return d; 
+      } 
+      catch (e) { throw new Error(e.message || "การเชื่อมต่อผิดพลาด"); }
+    }
+
     async function handleLogin() {
       const p = document.getElementById('passcodeInput').value; if(!p) return; 
-      
-      const btn = document.getElementById('loginBtn');
-      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังตรวจสอบ...`;
-      
+      showL("กำลังตรวจสอบรหัส...");
       try { 
         const res = await callAPI('login', { passcode: p }); 
         currentUser = res; 
         localStorage.setItem('woodyHealthUser', JSON.stringify(res)); 
         
-        // 1. ซ่อนฟอร์มล็อกอิน เฟดโชว์ข้อความต้อนรับ
-        document.getElementById('loginForm').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('loginForm').classList.add('hidden');
-            const welcome = document.getElementById('welcomeScreen');
-            welcome.classList.remove('hidden');
-            welcome.classList.add('flex');
-            setT('welcomeName', `ยินดีต้อนรับครับคุณ ${currentUser.name} 🎉`);
-            requestAnimationFrame(() => welcome.classList.remove('opacity-0'));
-            
-            // 2. รอแปบปึง แล้วค่อยเข้าแอป
-            setTimeout(() => {
-                initApp();
-                // คืนค่าฟอร์ม Login ไว้เผื่อ Logout กลับมา
-                setTimeout(() => {
-                    document.getElementById('loginForm').classList.remove('hidden');
-                    document.getElementById('loginForm').style.opacity = '1';
-                    welcome.classList.add('hidden');
-                    welcome.classList.remove('flex');
-                    welcome.classList.add('opacity-0');
-                    document.getElementById('passcodeInput').value = '';
-                    btn.innerHTML = `เข้าสู่ระบบ <i class="fa-solid fa-arrow-right-to-bracket"></i>`;
-                }, 1000);
-            }, 1800);
-        }, 500);
-
-      } catch (err) { 
-        showToast(err.message, 'error'); 
-        btn.innerHTML = `เข้าสู่ระบบ <i class="fa-solid fa-arrow-right-to-bracket"></i>`;
-      }
+        // เราจะไม่ซ่อน Loader ทันที แต่ให้ initApp จัดการโชว์ App ก่อน
+        await prepareApp();
+      } 
+      catch (err) { showToast(err.message, 'error'); hideL(); }
     }
 
-    function initApp() {
-      if(!currentUser || !currentUser.userId || !currentUser.initialWeight) { logout(); return; }
+    // แยกกระบวนการเริ่มแอปออกมาเพื่อป้องกัน UI โชว์ตอนยังโหลดไม่เสร็จ
+    async function prepareApp() {
+      if(!currentUser || !currentUser.userId) { logout(); return; }
       
-      const loginSec = document.getElementById('loginSection');
-      loginSec.style.opacity = '0';
+      showL("กำลังดึงข้อมูลของคุณอยู่ โปรดรอสักครู่...");
+      document.getElementById('loginSection').style.display = 'none'; 
+      document.getElementById('bodyContainer').classList.remove('bg-animate');
       
-      setTimeout(() => {
-          loginSec.style.display = 'none'; 
-          
-          const appSec = document.getElementById('appSection');
-          appSec.classList.remove('hidden'); 
-          document.getElementById('bodyContainer').classList.remove('bg-animate');
-          
-          setT('userNameDisplay', currentUser.name); setT('userNameInitial', currentUser.name[0].toUpperCase());
-          const savedGoal = currentUser.dietGoal || localStorage.getItem('woodyDietGoal') || 'normal';
-          setVal('dietGoalSelect', savedGoal); setT('goalText', goalLabels[savedGoal]);
-          
-          updateGreeting(); 
-          refreshDashboard(); 
-          resetInactivityTimer();
-          initHealthInputs();
-          
-          // โชว์แอปเนียนๆ
-          requestAnimationFrame(() => {
-              appSec.classList.remove('opacity-0');
-          });
-      }, 500);
+      setT('userNameDisplay', currentUser.name); setT('userNameInitial', currentUser.name[0].toUpperCase());
+      const savedGoal = currentUser.dietGoal || localStorage.getItem('woodyDietGoal') || 'normal';
+      setVal('dietGoalSelect', savedGoal); setT('goalText', goalLabels[savedGoal]);
+      
+      updateGreeting(); 
+      initHealthInputs(); 
+      resetInactivityTimer();
+
+      // ดึงข้อมูลแดชบอร์ดให้เสร็จก่อน
+      await refreshDashboard();
+      
+      // เมื่อทุกอย่างเสร็จแล้ว ค่อยเปิดม่าน!
+      const appSec = document.getElementById('appSection');
+      appSec.classList.remove('hidden');
+      requestAnimationFrame(() => appSec.classList.add('app-ready'));
+      
+      hideL();
     }
 
     function updateGreeting() {
@@ -388,18 +378,17 @@
       setT('greetingText', `${g}, ${currentUser.name}`); document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('th-TH', {weekday:'short', day:'numeric', month:'short'});
     }
 
-    async function callAPI(a, p={}) {
-      try { const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: a, ...p }) }); const d = await r.json(); if(!d.success && d.message) throw new Error(d.message); return d; } 
-      catch (e) { throw new Error(e.message || "การเชื่อมต่อผิดพลาด"); }
-    }
-
     async function refreshDashboard() {
       try {
         const d = await callAPI('getDashboard', { userId: currentUser.userId, initialWeight: currentUser.initialWeight, height: currentUser.height });
         if(d.foodDB) globalFoodDB = d.foodDB; if(d.exerciseDB) globalExDB = d.exerciseDB;
+        
         const s = d.dashboard;
         ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein'].forEach(k => setT(`dash${k}`, s[k.toLowerCase()]||"-"));
-        setT('analysisBMR', s.bmr); setT('dashLost', s.weightLost.toFixed(1)); setT('dashBMICat', s.bmiCategory||"-");
+        
+        setT('analysisBMR', s.bmr); 
+        setT('dashLost', Number(s.weightLost || 0).toFixed(1)); 
+        setT('dashBMICat', s.bmiCategory||"-");
         
         setH('statGrid', `
           <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 hover:shadow-sm transition"><p class="text-[9px] text-indigo-500 font-black mb-1 uppercase tracking-wider">กล้ามเนื้อ</p><p class="text-xl font-black text-indigo-800">${s.muscle}<span class="text-xs font-normal text-indigo-500 ml-1">kg</span></p></div>
@@ -408,12 +397,15 @@
           <div class="bg-rose-50/50 p-4 rounded-xl border border-rose-100 hover:shadow-sm transition"><p class="text-[9px] text-rose-500 font-black mb-1 uppercase tracking-wider">โปรตีน</p><p class="text-xl font-black text-rose-800">${s.protein}<span class="text-xs font-normal ml-1">%</span></p></div>
           <div class="bg-stone-50/50 p-4 rounded-xl border border-stone-200 hover:shadow-sm transition"><p class="text-[9px] text-stone-600 font-black mb-1 uppercase tracking-wider">มวลกระดูก</p><p class="text-xl font-black text-stone-800">${s.bone}<span class="text-xs font-normal ml-1">kg</span></p></div>
         `);
-        updateUI(d.food, d.exercise); initFoodSearch(); initExSearch();
-      } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ", 'error'); } 
+        
+        updateUI(d.food, d.exercise); 
+        initFoodSearch(); 
+        initExSearch();
+      } catch (err) { 
+        showToast("โหลดข้อมูลแดชบอร์ดไม่สำเร็จ", 'error'); 
+        console.error(err);
+      } 
     }
-
-    const exIcons = [ { keys: ["วิ่ง", "ลู่"], bg: "bg-blue-100 text-blue-500 fa-person-running" }, { keys: ["เดิน"], bg: "bg-emerald-100 text-emerald-500 fa-person-walking" }, { keys: ["เวท", "น้ำหนัก", "ดัมเบล"], bg: "bg-purple-100 text-purple-500 fa-dumbbell" }, { keys: ["ว่าย"], bg: "bg-cyan-100 text-cyan-500 fa-person-swimming" }, { keys: ["จักรยาน", "ปั่น"], bg: "bg-orange-100 text-orange-500 fa-person-biking" }, { keys: ["โยคะ", "ยืด"], bg: "bg-teal-100 text-teal-500 fa-child-reaching" }, { keys: ["เต้น", "แอโรบิค"], bg: "bg-rose-100 text-rose-500 fa-music" } ];
-    function getExIcon(n) { let m = exIcons.find(i => i.keys.some(k => n.toLowerCase().includes(k))), c = m ? m.bg : "bg-slate-100 text-slate-500 fa-fire", p = c.split(' '); return `<div class="w-10 h-10 rounded-full flex items-center justify-center ${p[0]} ${p[1]}"><i class="fa-solid ${p[2]} text-sm"></i></div>`; }
 
     function updateUI(f, e) {
       if(f) {
@@ -441,11 +433,12 @@
     }
 
     async function loadLeaderboard() {
-      setH('leaderboardContainer', '<div class="text-center py-10"><i class="fa-solid fa-spinner animate-spin text-3xl text-indigo-200"></i></div>');
+      showL("กำลังโหลดตารางแข่งขัน...");
       try {
         const d = await callAPI('getLeaderboard');
         setH('leaderboardContainer', d.leaderboard.map((u,i) => `<div class="bg-white p-4 rounded-2xl border ${i===0?'border-yellow-200 bg-yellow-50':'border-gray-100'} flex items-center justify-between mb-3 shadow-sm"><div class="flex items-center gap-4"><span class="text-lg font-black ${i===0?'text-yellow-500':i===1?'text-gray-400':i===2?'text-amber-600':'text-gray-200'} w-8 text-center">${i<3?'<i class="fa-solid fa-crown"></i>':'#'+(i+1)}</span><div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">${u.name[0]}</div><div><p class="font-bold text-gray-800 text-base">${u.name}</p><p class="text-[9px] text-gray-400 font-bold uppercase">Sync: ${u.lastUpdate}</p></div></div><div class="text-right"><p class="text-[9px] text-emerald-600 font-bold uppercase mb-0.5">ลดไปแล้ว</p><p class="text-2xl font-black text-emerald-500">${u.lost.toFixed(1)}<small class="text-xs ml-0.5">kg</small></p></div></div>`).join(''));
       } catch(e) { setH('leaderboardContainer', '<p class="text-center text-rose-500 text-sm font-bold">ไม่สามารถดึงข้อมูลได้</p>'); }
+      finally { hideL(); }
     }
 
     function initFoodSearch() {
@@ -511,8 +504,8 @@
       try { const r = await callAPI('addExerciseToDB', { activityName: n }); globalExDB = r.exerciseDB; setVal('newExName', ''); showToast("เพิ่มกิจกรรมสำเร็จ"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
     async function deleteData(a, id) {
-      if(!confirm("ต้องการลบ?")) return; showL("ลบ...");
-      try { const r = await callAPI(a, { logId: id, userId: currentUser.userId }); updateUI(r.food, r.exercise); showToast("ลบแล้ว"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
+      if(!confirm("ต้องการลบ?")) return; showL("กำลังลบ...");
+      try { const r = await callAPI(a, { logId: id, userId: currentUser.userId }); updateUI(r.food, r.exercise); showToast("ลบข้อมูลแล้ว"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
 
     function initHealthInputs() {
@@ -539,15 +532,14 @@
       try { await callAPI('updateHealth', { userId: currentUser.userId, healthData: h }); showToast("ซิงค์สำเร็จ"); refreshDashboard(); switchMenu('dashboard'); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
 
-    function openProfileModal() { setVal('profName', currentUser.name); const m = document.getElementById('profileModal'); m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=>m.classList.remove('opacity-0')); document.getElementById('profileModalContent').classList.remove('scale-95'); document.getElementById('profileModalContent').classList.add('scale-100'); }
-    function closeProfileModal() { const m = document.getElementById('profileModal'); m.classList.add('opacity-0'); document.getElementById('profileModalContent').classList.add('scale-95'); document.getElementById('profileModalContent').classList.remove('scale-100'); setTimeout(()=>{m.classList.add('hidden'); m.classList.remove('flex');}, 300); }
+    function openProfileModal() { setVal('profName', currentUser.name); const m = document.getElementById('profileModal'); m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=>m.classList.remove('opacity-0')); }
+    function closeProfileModal() { const m = document.getElementById('profileModal'); m.classList.add('opacity-0'); setTimeout(()=>{m.classList.add('hidden'); m.classList.remove('flex');}, 300); }
     
     async function saveProfileUpdate() {
       const o=document.getElementById('profOldPass').value, n=document.getElementById('profNewPass').value, nm=document.getElementById('profName').value;
       if(!o || !nm) return showToast("ใส่ข้อมูลให้ครบ", "error"); showL("อัปเดต...");
       try { const r = await callAPI('updateProfile', { userId: currentUser.userId, oldPass: o, newPass: n, newName: nm }); currentUser.name = r.newName; localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); setT('userNameDisplay', nm); setT('userNameInitial', nm[0].toUpperCase()); closeProfileModal(); showToast("อัปเดตสำเร็จ!"); updateGreeting(); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
-    
     async function saveGoalAndAnalyze() {
       const g = document.getElementById('dietGoalSelect').value; showL("อัปเดตเป้าหมาย...");
       try { await callAPI('updateDietGoal', { userId: currentUser.userId, goal: g }); currentUser.dietGoal = g; localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); localStorage.setItem('woodyDietGoal', g); setT('goalText', goalLabels[g]); toggleGoalEdit(false); analyzeEnergySafety(); showToast("สำเร็จ"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
@@ -558,7 +550,7 @@
     function continueSession() { resetInactivityTimer(); }
     function toggleGoalEdit(e) { document.getElementById('goalDisplayMode').classList[e?'add':'remove']('hidden'); document.getElementById('goalEditMode').classList[e?'remove':'add']('hidden'); }
     
-    document.addEventListener("DOMContentLoaded", () => { const u = localStorage.getItem('woodyHealthUser'); if(u) { currentUser = JSON.parse(u); initApp(); } });
+    document.addEventListener("DOMContentLoaded", () => { const u = localStorage.getItem('woodyHealthUser'); if(u) { currentUser = JSON.parse(u); prepareApp(); } });
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
   </script>
 </body>
