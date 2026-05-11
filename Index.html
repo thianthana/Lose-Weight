@@ -14,9 +14,11 @@
     .sidebar-item:hover:not(.sidebar-active) { background-color: #f8fafc; }
     input[type="password"]::-ms-reveal { display: none; }
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
     .bg-animate { background: linear-gradient(-45deg, #4f46e5, #3b82f6, #06b6d4, #8b5cf6); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -87,57 +89,99 @@
       </div>
     </aside>
 
-    <main class="flex-1 p-6 md:p-10 overflow-y-auto relative">
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto relative custom-scrollbar">
       <div id="view-dashboard" class="animate-fade-in max-w-6xl mx-auto space-y-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 bg-gradient-to-r from-white to-blue-50/50 p-8 rounded-3xl border border-white shadow-sm">
           <div>
             <h2 class="text-3xl font-extrabold text-gray-800" id="greetingText">สวัสดียามเช้า, Woody</h2>
             <p class="text-gray-500 mt-2 font-medium">ลุยกันต่อ! วันนี้คุณทำได้ดีมาก 🚀</p>
           </div>
-          <div class="mt-4 md:mt-0 text-right"><span class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl"><i class="fa-solid fa-calendar-day mr-2"></i><span id="currentDateDisplay"></span></span></div>
-        </div>
-        <div class="bg-gray-900 rounded-[2rem] p-8 text-white shadow-xl shadow-gray-900/20 relative overflow-hidden">
-          <i class="fa-solid fa-bolt absolute right-[-20px] bottom-[-20px] text-9xl opacity-10"></i>
-          <h3 class="text-gray-400 font-semibold mb-6 flex items-center"><i class="fa-solid fa-calculator mr-2 text-indigo-400"></i> แคลอรีสุทธิ (Net Calories)</h3>
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center items-center">
-            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md"><p class="text-sm text-gray-400 mb-1">รับเข้า (อาหาร)</p><p class="text-3xl font-bold text-emerald-400" id="dashFoodCal">0</p></div>
-            <div class="text-2xl text-gray-600 hidden md:block"><i class="fa-solid fa-minus"></i></div>
-            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md"><p class="text-sm text-gray-400 mb-1">เผาผลาญ (กิจกรรม)</p><p class="text-3xl font-bold text-orange-400" id="dashBurnCal">0</p></div>
-            <div class="text-2xl text-gray-600 hidden md:block"><i class="fa-solid fa-equals"></i></div>
-            <div class="bg-gradient-to-br from-indigo-600 to-blue-500 p-5 rounded-2xl shadow-lg border border-indigo-400/30"><p class="text-sm text-indigo-100 mb-1">แคลอรีสุทธิ</p><p class="text-4xl font-black text-white" id="dashNetCal">0</p></div>
+          <div class="mt-4 md:mt-0 flex items-center gap-4">
+            <span class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl"><i class="fa-solid fa-calendar-day mr-2"></i><span id="currentDateDisplay"></span></span>
           </div>
         </div>
+
+        <div class="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+          <i class="fa-solid fa-fire absolute right-[-40px] top-[-20px] text-[12rem] opacity-5 transform rotate-12"></i>
+          
+          <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 z-10 relative">
+            <div>
+              <h3 class="text-gray-300 font-bold text-xl flex items-center"><i class="fa-solid fa-calculator mr-2 text-indigo-400"></i> วิเคราะห์พลังงานรายวัน (Energy Balance)</h3>
+              <p class="text-sm text-gray-500 mt-1">อิงตามหลักวิทยาศาสตร์การเผาผลาญ (BMR + Active Burn)</p>
+            </div>
+            <div class="bg-white/10 p-1.5 rounded-xl flex items-center backdrop-blur-md border border-white/10">
+              <span class="text-sm font-semibold text-gray-300 px-3">เป้าหมาย:</span>
+              <select id="dietGoalSelect" onchange="saveGoalAndAnalyze()" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg outline-none cursor-pointer hover:bg-indigo-500 transition">
+                <option value="maintain">รักษาน้ำหนัก</option>
+                <option value="normal" selected>ลดน้ำหนักปกติ (-500 kcal)</option>
+                <option value="hard">ลดแบบโหด (-800 kcal)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-center items-center mb-6 z-10 relative">
+            <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+              <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">BMR พื้นฐาน</p>
+              <p class="text-2xl font-black text-gray-200" id="energyBMR"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+            </div>
+            <div class="text-xl text-gray-600 hidden lg:block"><i class="fa-solid fa-plus"></i></div>
+            <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+              <p class="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">ออกกำลังกาย</p>
+              <p class="text-2xl font-black text-orange-400" id="dashBurnCal"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+            </div>
+            <div class="text-xl text-gray-600 hidden lg:block"><i class="fa-solid fa-equals"></i></div>
+            <div class="bg-indigo-500/20 p-4 rounded-2xl border border-indigo-500/30">
+              <p class="text-xs text-indigo-300 font-bold mb-1 uppercase tracking-wider">เผาผลาญรวมวันนี้</p>
+              <p class="text-3xl font-black text-indigo-400" id="energyTotalBurn"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+            </div>
+            
+            <div class="col-span-2 lg:col-span-2 bg-gradient-to-br from-emerald-500 to-teal-500 p-4 rounded-2xl shadow-lg transform lg:scale-110 ml-0 lg:ml-4">
+              <p class="text-xs text-emerald-100 font-bold mb-1 uppercase tracking-wider">โควต้าทานอาหาร (Target)</p>
+              <p class="text-3xl font-black text-white" id="energyTarget"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/50 rounded-2xl p-5 border border-gray-700 mt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-3 text-center md:text-left">
+              <p class="text-sm text-gray-400 font-bold mb-1">ทานไปแล้ว</p>
+              <p class="text-3xl font-black text-emerald-400"><span id="dashFoodCal"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span> <span class="text-base font-normal text-gray-500">kcal</span></p>
+            </div>
+            <div class="md:col-span-9" id="energyAnalysisBox">
+              <div class="p-4 rounded-xl border flex items-center justify-center gap-3 bg-gray-700/50 border-gray-600 text-gray-400">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> กำลังวิเคราะห์ข้อมูล...
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
             <h3 class="text-gray-500 font-bold mb-2 text-sm z-10">น้ำหนักปัจจุบัน</h3>
-            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashWeight">--</span><span class="text-xl font-normal text-gray-400 ml-1">kg</span></p>
+            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashWeight"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-xl font-normal text-gray-400 ml-1">kg</span></p>
             <p class="text-sm bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-bold z-10"><i class="fa-solid fa-arrow-down mr-1"></i> ลดไป <span id="dashLost">0</span> kg</p>
           </div>
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
             <h3 class="text-gray-500 font-bold mb-2 text-sm z-10">BMI (ดัชนีมวลกาย)</h3>
-            <p class="text-5xl font-black text-gray-800 my-2 z-10" id="dashBMI">--</p>
+            <p class="text-5xl font-black text-gray-800 my-2 z-10" id="dashBMI"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></p>
             <p id="dashBMICat" class="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold z-10">-</p>
           </div>
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
             <h3 class="text-gray-500 font-bold mb-2 text-sm z-10">Body Fat</h3>
-            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashFat">--</span><span class="text-xl font-normal text-gray-400 ml-1">%</span></p>
+            <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashFat"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-xl font-normal text-gray-400 ml-1">%</span></p>
           </div>
         </div>
+
         <div class="glass-card p-8">
           <h3 class="text-lg font-extrabold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-fingerprint text-indigo-500 mr-2 text-xl"></i> สถิติร่างกายเชิงลึก</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100"><p class="text-xs text-gray-400 font-bold mb-1"><i class="fa-solid fa-dumbbell mr-1"></i> กล้ามเนื้อ</p><p class="text-2xl font-bold text-gray-800"><span id="dashMuscle">-</span><span class="text-sm font-normal text-gray-500 ml-1">kg</span></p></div>
-            <div class="bg-orange-50/50 p-5 rounded-2xl border border-orange-100"><p class="text-xs text-orange-400 font-bold mb-1"><i class="fa-solid fa-burger mr-1"></i> ไขมันช่องท้อง</p><p class="text-2xl font-bold text-orange-800">Lv <span id="dashVisceral">-</span></p></div>
-            <div class="bg-cyan-50/50 p-5 rounded-2xl border border-cyan-100"><p class="text-xs text-cyan-500 font-bold mb-1"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ</p><p class="text-2xl font-bold text-cyan-800"><span id="dashWater">-</span><span class="text-sm font-normal text-cyan-600 ml-1">%</span></p></div>
-            <div class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100"><p class="text-xs text-rose-400 font-bold mb-1"><i class="fa-solid fa-egg mr-1"></i> โปรตีน</p><p class="text-2xl font-bold text-rose-800"><span id="dashProtein">-</span><span class="text-sm font-normal text-rose-600 ml-1">%</span></p></div>
-            <div class="bg-stone-50/50 p-5 rounded-2xl border border-stone-200"><p class="text-xs text-stone-500 font-bold mb-1"><i class="fa-solid fa-bone mr-1"></i> มวลกระดูก</p><p class="text-2xl font-bold text-stone-800"><span id="dashBone">-</span><span class="text-sm font-normal text-stone-600 ml-1">kg</span></p></div>
-            <div class="col-span-1 md:col-span-3 bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-2xl border border-emerald-100 flex items-center justify-between">
-              <div><p class="text-sm text-emerald-600 font-extrabold uppercase mb-1"><i class="fa-solid fa-bolt mr-1"></i> BMR (คำนวณอัตโนมัติ)</p><p class="text-xs text-emerald-500">อิงตามหลักวิทยาศาสตร์ (Mifflin-St Jeor)</p></div>
-              <p class="text-3xl font-black text-emerald-700"><span id="dashBMR">-</span> <span class="text-base font-normal">kcal</span></p>
-            </div>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
+            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100"><p class="text-xs text-gray-400 font-bold mb-1"><i class="fa-solid fa-dumbbell mr-1"></i> กล้ามเนื้อ</p><p class="text-2xl font-bold text-gray-800"><span id="dashMuscle"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-gray-500 ml-1">kg</span></p></div>
+            <div class="bg-orange-50/50 p-5 rounded-2xl border border-orange-100"><p class="text-xs text-orange-400 font-bold mb-1"><i class="fa-solid fa-burger mr-1"></i> ไขมันช่องท้อง</p><p class="text-2xl font-bold text-orange-800">Lv <span id="dashVisceral"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span></p></div>
+            <div class="bg-cyan-50/50 p-5 rounded-2xl border border-cyan-100"><p class="text-xs text-cyan-500 font-bold mb-1"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ</p><p class="text-2xl font-bold text-cyan-800"><span id="dashWater"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-cyan-600 ml-1">%</span></p></div>
+            <div class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100"><p class="text-xs text-rose-400 font-bold mb-1"><i class="fa-solid fa-egg mr-1"></i> โปรตีน</p><p class="text-2xl font-bold text-rose-800"><span id="dashProtein"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-rose-600 ml-1">%</span></p></div>
+            <div class="bg-stone-50/50 p-5 rounded-2xl border border-stone-200"><p class="text-xs text-stone-500 font-bold mb-1"><i class="fa-solid fa-bone mr-1"></i> มวลกระดูก</p><p class="text-2xl font-bold text-stone-800"><span id="dashBone"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></span><span class="text-sm font-normal text-stone-600 ml-1">kg</span></p></div>
           </div>
         </div>
       </div>
@@ -146,12 +190,13 @@
         <h2 class="text-3xl font-bold text-gray-800 mb-2">บันทึกโภชนาการ</h2>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div class="lg:col-span-5 space-y-6">
-            <div class="glass-card p-8">
+            <div class="glass-card p-8 border-t-4 border-blue-500 relative">
               <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-utensils text-blue-500 mr-2"></i>เลือกเมนูอาหาร</h3>
               <div class="relative mb-6">
+                <label class="block text-sm font-bold text-gray-600 mb-2">ค้นหาเมนูอาหาร</label>
                 <div class="relative">
                   <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input type="text" id="foodSearchInput" placeholder="พิมพ์ชื่อเมนู..." autocomplete="off" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition text-gray-800 font-bold">
+                  <input type="text" id="foodSearchInput" placeholder="พิมพ์ชื่อเมนู..." autocomplete="off" class="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition text-gray-800 font-bold">
                 </div>
                 <div id="foodCustomDropdown" class="hidden absolute z-30 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar"></div>
               </div>
@@ -201,9 +246,10 @@
             <div class="glass-card p-8 border-t-4 border-orange-500">
               <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-fire-flame-curved text-orange-500 mr-2"></i>บันทึกกิจกรรม</h3>
               <div class="relative mb-6">
+                <label class="block text-sm font-bold text-gray-600 mb-2">ค้นหากิจกรรม</label>
                 <div class="relative">
                   <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input type="text" id="exSearchInput" placeholder="พิมพ์ชื่อกิจกรรม..." autocomplete="off" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-orange-500 focus:bg-white transition text-gray-800 font-bold">
+                  <input type="text" id="exSearchInput" placeholder="พิมพ์ชื่อกิจกรรม..." autocomplete="off" class="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-50 transition text-gray-800 font-bold">
                 </div>
                 <div id="exCustomDropdown" class="hidden absolute z-30 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar"></div>
               </div>
@@ -245,47 +291,26 @@
         <div class="glass-card p-10">
           <div class="text-center mb-10 border-b border-gray-100 pb-8">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-2">อัปเดตข้อมูล Smart Scale</h2>
-            <p class="text-gray-500 font-medium">บันทึกข้อมูลจากเครื่องชั่งเพื่อให้สถิติบน Dashboard แม่นยำที่สุด</p>
+            <p class="text-gray-500 font-medium">ส่วนนี้ถูกปรับให้เหลือเฉพาะค่าที่อ่านได้จากเครื่องชั่งโดยตรง BMR และอายุการเผาผลาญระบบจะคำนวณให้แล้ว</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
             <div class="space-y-6">
-              <div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100">
-                <label class="block text-sm font-bold text-blue-800 mb-2"><i class="fa-solid fa-weight-scale mr-1"></i> น้ำหนักตัว (kg)</label>
-                <input type="number" step="0.1" id="hWeight" class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl outline-none focus:border-blue-500 text-lg font-bold text-center">
-              </div>
-              <div class="bg-orange-50/60 p-5 rounded-2xl border border-orange-100">
-                <label class="block text-sm font-bold text-orange-800 mb-2"><i class="fa-solid fa-fire mr-1"></i> Body Fat (%)</label>
-                <input type="number" step="0.1" id="hFat" class="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl outline-none focus:border-orange-500 text-lg font-bold text-center">
-              </div>
+              <div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100"><label class="block text-sm font-bold text-blue-800 mb-2"><i class="fa-solid fa-weight-scale mr-1"></i> น้ำหนักตัว (kg)</label><input type="number" step="0.1" id="hWeight" class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl outline-none focus:border-blue-500 text-lg font-bold text-center"></div>
+              <div class="bg-orange-50/60 p-5 rounded-2xl border border-orange-100"><label class="block text-sm font-bold text-orange-800 mb-2"><i class="fa-solid fa-fire mr-1"></i> Body Fat (%)</label><input type="number" step="0.1" id="hFat" class="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl outline-none focus:border-orange-500 text-lg font-bold text-center"></div>
             </div>
             <div class="space-y-6">
-              <div class="bg-indigo-50/60 p-5 rounded-2xl border border-indigo-100">
-                <label class="block text-sm font-bold text-indigo-800 mb-2"><i class="fa-solid fa-dumbbell mr-1"></i> มวลกล้ามเนื้อ (kg)</label>
-                <input type="number" step="0.1" id="hMuscle" class="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl outline-none focus:border-indigo-500 text-lg font-bold text-center">
-              </div>
-              <div class="bg-amber-50/60 p-5 rounded-2xl border border-amber-100">
-                <label class="block text-sm font-bold text-amber-800 mb-2"><i class="fa-solid fa-burger mr-1"></i> ไขมันช่องท้อง (Level)</label>
-                <input type="number" id="hVisceral" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl outline-none focus:border-amber-500 text-lg font-bold text-center">
-              </div>
+              <div class="bg-indigo-50/60 p-5 rounded-2xl border border-indigo-100"><label class="block text-sm font-bold text-indigo-800 mb-2"><i class="fa-solid fa-dumbbell mr-1"></i> มวลกล้ามเนื้อ (kg)</label><input type="number" step="0.1" id="hMuscle" class="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl outline-none focus:border-indigo-500 text-lg font-bold text-center"></div>
+              <div class="bg-amber-50/60 p-5 rounded-2xl border border-amber-100"><label class="block text-sm font-bold text-amber-800 mb-2"><i class="fa-solid fa-burger mr-1"></i> ไขมันช่องท้อง (Level)</label><input type="number" id="hVisceral" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl outline-none focus:border-amber-500 text-lg font-bold text-center"></div>
             </div>
             <div class="space-y-6">
-              <div class="bg-cyan-50/60 p-5 rounded-2xl border border-cyan-100">
-                <label class="block text-sm font-bold text-cyan-800 mb-2"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ (%)</label>
-                <input type="number" step="0.1" id="hWater" class="w-full px-4 py-3 bg-white border border-cyan-200 rounded-xl outline-none focus:border-cyan-500 font-bold text-center">
-              </div>
+              <div class="bg-cyan-50/60 p-5 rounded-2xl border border-cyan-100"><label class="block text-sm font-bold text-cyan-800 mb-2"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ (%)</label><input type="number" step="0.1" id="hWater" class="w-full px-4 py-3 bg-white border border-cyan-200 rounded-xl outline-none focus:border-cyan-500 font-bold text-center"></div>
               <div class="grid grid-cols-2 gap-4">
-                <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100">
-                  <label class="block text-xs font-bold text-rose-800 mb-2">โปรตีน (%)</label>
-                  <input type="number" step="0.1" id="hProtein" class="w-full px-3 py-2 bg-white border border-rose-200 rounded-xl outline-none focus:border-rose-500 font-bold text-center">
-                </div>
-                <div class="bg-stone-50/60 p-4 rounded-2xl border border-stone-200">
-                  <label class="block text-xs font-bold text-stone-800 mb-2">กระดูก (kg)</label>
-                  <input type="number" step="0.1" id="hBone" class="w-full px-3 py-2 bg-white border border-stone-200 rounded-xl outline-none focus:border-stone-500 font-bold text-center">
-                </div>
+                <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100"><label class="block text-xs font-bold text-rose-800 mb-2">โปรตีน (%)</label><input type="number" step="0.1" id="hProtein" class="w-full px-3 py-2 bg-white border border-rose-200 rounded-xl outline-none focus:border-rose-500 font-bold text-center"></div>
+                <div class="bg-stone-50/60 p-4 rounded-2xl border border-stone-200"><label class="block text-xs font-bold text-stone-800 mb-2">กระดูก (kg)</label><input type="number" step="0.1" id="hBone" class="w-full px-3 py-2 bg-white border border-stone-200 rounded-xl outline-none focus:border-stone-500 font-bold text-center"></div>
               </div>
             </div>
           </div>
-          <button id="updateHealthBtn" onclick="updateHealth()" class="w-full mt-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition text-lg">บันทึกข้อมูลลงฐานข้อมูล</button>
+          <button id="updateHealthBtn" onclick="updateHealth()" class="w-full mt-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition text-lg"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกข้อมูลลงฐานข้อมูล</button>
         </div>
       </div>
 
@@ -296,8 +321,7 @@
           <p class="text-gray-500 font-medium mt-2">แข่งขันและเป็นแรงบันดาลใจให้กันและกัน</p>
         </div>
         <div class="glass-card p-6 md:p-10 bg-white">
-          <div id="leaderboardContainer" class="space-y-4">
-            </div>
+          <div id="leaderboardContainer" class="space-y-4"></div>
         </div>
       </div>
     </main>
@@ -321,59 +345,52 @@
   <style>.animate-fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }</style>
 
   <script>
+    // ==========================================
+    // ใส่ URL Web App ของคุณที่นี่
+    // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycby8Cqr_NyZ_RBP2fsN2Uya8HBoQc2-S78hD2dZ5BGAkWZeAmvgWR8RUoi9_oK0hcqFo/exec"; 
     
     let currentUser = null;
     let globalFoodDB = []; 
     let globalExDB = [];
 
-    // ================= Auto Logout Session =================
-    let inactivityTimeout;
-    let countdownInterval;
-    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 นาที
-    const WARNING_TIME = 30000; // 30 วินาที
+    // Auto Logout 
+    let inactivityTimeout; let countdownInterval;
+    const INACTIVITY_LIMIT = 15 * 60 * 1000; const WARNING_TIME = 30000;
 
     function resetInactivityTimer() {
       if(!currentUser) return;
-      clearTimeout(inactivityTimeout);
-      clearInterval(countdownInterval);
+      clearTimeout(inactivityTimeout); clearInterval(countdownInterval);
       document.getElementById('autoLogoutModal').classList.add('hidden');
       inactivityTimeout = setTimeout(showAutoLogoutWarning, INACTIVITY_LIMIT - WARNING_TIME);
     }
-
     function showAutoLogoutWarning() {
-      document.getElementById('autoLogoutModal').classList.remove('hidden');
-      let timeLeft = 30;
+      document.getElementById('autoLogoutModal').classList.remove('hidden'); let timeLeft = 30;
       document.getElementById('countdownTimer').innerText = timeLeft;
-      countdownInterval = setInterval(() => {
-        timeLeft--; document.getElementById('countdownTimer').innerText = timeLeft;
-        if (timeLeft <= 0) { clearInterval(countdownInterval); logout(); }
-      }, 1000);
+      countdownInterval = setInterval(() => { timeLeft--; document.getElementById('countdownTimer').innerText = timeLeft; if (timeLeft <= 0) { clearInterval(countdownInterval); logout(); } }, 1000);
     }
-
     function continueSession() { resetInactivityTimer(); }
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
 
-    // เช็ก LocalStorage ตอนโหลดหน้า
     document.addEventListener("DOMContentLoaded", () => {
       const savedUser = localStorage.getItem('woodyHealthUser');
       if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('appSection').classList.remove('hidden');
-        document.getElementById('bodyContainer').classList.remove('bg-animate');
-        document.getElementById('userNameDisplay').innerText = currentUser.name;
-        document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
+        currentUser = JSON.parse(savedUser); document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('appSection').classList.remove('hidden'); document.getElementById('bodyContainer').classList.remove('bg-animate');
+        document.getElementById('userNameDisplay').innerText = currentUser.name; document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
+        
+        // โหลดเป้าหมายจากเครื่อง
+        const savedGoal = localStorage.getItem('woodyDietGoal');
+        if(savedGoal) document.getElementById('dietGoalSelect').value = savedGoal;
+        
         updateGreeting(); refreshDashboard(); resetInactivityTimer();
       }
     });
 
-    // ================= UI Helpers =================
     function updateGreeting() {
       const hr = new Date().getHours(); let greet = hr < 12 ? "สวัสดียามเช้า" : hr < 18 ? "สวัสดียามบ่าย" : "สวัสดียามเย็น";
       document.getElementById('greetingText').innerText = `${greet}, ${currentUser ? currentUser.name : 'Woody'}`;
     }
-
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('th-TH', options);
 
@@ -381,13 +398,12 @@
       const tc = document.getElementById('toastContainer'); const t = document.createElement('div');
       const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>' : '<i class="fa-solid fa-circle-exclamation text-rose-500 text-xl"></i>';
       t.className = `bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3 border ${type === 'success' ? 'border-emerald-200' : 'border-rose-200'} min-w-[300px] toast-enter`;
-      t.innerHTML = `${icon} <p class="font-bold text-gray-700">${message}</p>`;
-      tc.appendChild(t); setTimeout(() => { t.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => t.remove(), 400); }, 3000);
+      t.innerHTML = `${icon} <p class="font-bold text-gray-700">${message}</p>`; tc.appendChild(t);
+      setTimeout(() => { t.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => t.remove(), 400); }, 3000);
     }
 
     function showLoading(text = "กำลังประมวลผล...") { document.getElementById('loadingText').innerText = text; document.getElementById('loadingOverlay').classList.remove('hidden'); }
     function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
-
     function togglePassword() { const i = document.getElementById('passcodeInput'); i.type = i.type === 'password' ? 'text' : 'password'; }
     document.getElementById("passcodeInput").addEventListener("keypress", e => { if (e.key === "Enter") handleLogin(); });
 
@@ -395,8 +411,7 @@
       ['dashboard', 'food', 'exercise', 'health', 'competition'].forEach(n => {
         document.getElementById(`view-${n}`).classList.add('hidden'); document.getElementById(`menu-${n}`).classList.remove('sidebar-active', 'text-indigo-600');
       });
-      document.getElementById(`view-${viewName}`).classList.remove('hidden');
-      document.getElementById(`menu-${viewName}`).classList.add('sidebar-active', 'text-indigo-600');
+      document.getElementById(`view-${viewName}`).classList.remove('hidden'); document.getElementById(`menu-${viewName}`).classList.add('sidebar-active', 'text-indigo-600');
       if(viewName === 'dashboard') updateGreeting();
       if(viewName === 'competition') loadLeaderboard();
     }
@@ -407,34 +422,23 @@
     }
 
     async function handleLogin() {
-      const pass = document.getElementById('passcodeInput').value; if (!pass) return;
-      showLoading("กำลังยืนยันตัวตน...");
+      const pass = document.getElementById('passcodeInput').value; if (!pass) return; showLoading("กำลังยืนยันตัวตน...");
       try {
-        const res = await callAPI('login', { passcode: pass });
-        currentUser = res; 
-        localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); // บันทึกลงเครื่อง
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('appSection').classList.remove('hidden');
-        document.getElementById('bodyContainer').classList.remove('bg-animate');
-        document.getElementById('userNameDisplay').innerText = currentUser.name;
-        document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
+        const res = await callAPI('login', { passcode: pass }); currentUser = res; localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); 
+        document.getElementById('loginSection').style.display = 'none'; document.getElementById('appSection').classList.remove('hidden'); document.getElementById('bodyContainer').classList.remove('bg-animate');
+        document.getElementById('userNameDisplay').innerText = currentUser.name; document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
         updateGreeting(); refreshDashboard(); resetInactivityTimer();
       } catch (err) { showToast(err.message, 'error'); hideLoading(); } 
     }
-    
     function logout() { localStorage.removeItem('woodyHealthUser'); location.reload(); }
 
     function openPasswordModal() { document.getElementById('passwordModal').classList.remove('hidden'); setTimeout(()=> document.getElementById('passModalContent').classList.remove('scale-95'), 10); }
     function closePasswordModal() { document.getElementById('passModalContent').classList.add('scale-95'); setTimeout(()=> document.getElementById('passwordModal').classList.add('hidden'), 300); document.getElementById('oldPass').value = ''; document.getElementById('newPass').value = ''; }
-    
     async function saveNewPassword() {
       const oldP = document.getElementById('oldPass').value; const newP = document.getElementById('newPass').value;
-      if(!oldP || !newP) return showToast('กรุณากรอกข้อมูลให้ครบ', 'error');
-      showLoading("กำลังเปลี่ยนรหัส...");
-      try {
-        await callAPI('changePassword', { userId: currentUser.userId, oldPass: oldP, newPass: newP });
-        showToast("เปลี่ยนรหัสเรียบร้อยแล้ว"); closePasswordModal();
-      } catch (e) { showToast(e.message, 'error'); } finally { hideLoading(); }
+      if(!oldP || !newP) return showToast('กรุณากรอกข้อมูลให้ครบ', 'error'); showLoading("กำลังเปลี่ยนรหัส...");
+      try { await callAPI('changePassword', { userId: currentUser.userId, oldPass: oldP, newPass: newP }); showToast("เปลี่ยนรหัสเรียบร้อย"); closePasswordModal(); } 
+      catch (e) { showToast(e.message, 'error'); } finally { hideLoading(); }
     }
 
     async function refreshDashboard() {
@@ -443,50 +447,93 @@
         if(data.foodDB) globalFoodDB = data.foodDB; if(data.exerciseDB) globalExDB = data.exerciseDB;
         if(data.dashboard) {
           const db = data.dashboard;
-          ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein', 'BMR'].forEach(id => {
-            let el = document.getElementById(`dash${id}`); if(el) el.innerText = db[id.toLowerCase()] || db[id.charAt(0).toLowerCase() + id.slice(1)];
-          });
+          ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein'].forEach(id => { let el = document.getElementById(`dash${id}`); if(el) el.innerText = db[id.toLowerCase()] || db[id.charAt(0).toLowerCase() + id.slice(1)]; });
+          
+          // ตัวแปรพิเศษที่ต้องอัปเดต 2 ที่
+          document.getElementById('energyBMR').innerText = db.bmr;
+          
           document.getElementById('dashLost').innerText = db.weightLost.toFixed(1); document.getElementById('dashBMICat').innerText = db.bmiCategory;
         }
         updateUI(data.food, data.exercise);
       } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ", 'error'); } finally { hideLoading(); }
     }
 
-    // ================= Leaderboard (แข่งขัน) =================
-    async function loadLeaderboard() {
-      const box = document.getElementById('leaderboardContainer');
-      box.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-indigo-500 text-3xl"></i></div>';
-      try {
-         const res = await callAPI('getLeaderboard');
-         if (res.leaderboard) renderLeaderboard(res.leaderboard);
-      } catch (e) { box.innerHTML = '<div class="text-center py-10 text-rose-500 font-bold">โหลดข้อมูลไม่สำเร็จ</div>'; }
+    // ================= วิเคราะห์พลังงานทางวิทยาศาสตร์ =================
+    function saveGoalAndAnalyze() {
+      const goal = document.getElementById('dietGoalSelect').value;
+      localStorage.setItem('woodyDietGoal', goal);
+      analyzeEnergySafety();
     }
 
+    function analyzeEnergySafety() {
+      const bmr = parseInt(document.getElementById('energyBMR').innerText) || 2000;
+      const food = parseInt(document.getElementById('dashFoodCal').innerText) || 0;
+      const exercise = parseInt(document.getElementById('dashBurnCal').innerText) || 0;
+      const goal = document.getElementById('dietGoalSelect').value || 'normal';
+      
+      let targetDeficit = 0;
+      if (goal === 'normal') targetDeficit = 500;
+      else if (goal === 'hard') targetDeficit = 800;
+      else if (goal === 'maintain') targetDeficit = 0;
+
+      const totalBurn = bmr + exercise;
+      const targetFood = totalBurn - targetDeficit;
+      
+      document.getElementById('energyTotalBurn').innerText = totalBurn;
+      document.getElementById('energyTarget').innerText = targetFood;
+      
+      const box = document.getElementById('energyAnalysisBox');
+      let statusText, statusColor, statusIcon;
+
+      if (food > 0 && food < bmr * 0.8) {
+        statusText = "อันตรายมากที่สุด! พลังงานต่ำกว่า BMR ร่างกายจะเข้าสู่โหมดจำศีล เสี่ยงโยโย่และกล้ามเนื้อสลาย";
+        statusColor = "bg-red-500 border-red-400 text-white"; statusIcon = "fa-skull-crossbones";
+      } else if (food > 0 && (totalBurn - food) > 1200) {
+        statusText = "ค่อนข้างอันตราย หักโหมเกินไป! พลังงานติดลบสูงมาก ควรทานเพิ่มหรือลดการออกกำลังกายลงเล็กน้อย";
+        statusColor = "bg-orange-500 border-orange-400 text-white"; statusIcon = "fa-triangle-exclamation";
+      } else if (food > totalBurn + 300) {
+        statusText = "เตือนภัย! แคลอรีรับเข้าสูงกว่าเผาผลาญ พลังงานส่วนเกินนี้จะสะสมเป็นไขมันใหม่";
+        statusColor = "bg-rose-500 border-rose-400 text-white"; statusIcon = "fa-arrow-trend-up";
+      } else if (food > 0 && Math.abs(totalBurn - food) < 300 && goal === 'maintain') {
+        statusText = "สมบูรณ์แบบ! สมดุลพลังงานยอดเยี่ยม เหมาะกับการรักษาน้ำหนัก";
+        statusColor = "bg-blue-500 border-blue-400 text-white"; statusIcon = "fa-shield-halved";
+      } else if (food > 0 && (totalBurn - food) >= 300 && (totalBurn - food) <= 1000 && food >= bmr * 0.8) {
+        statusText = "ปลอดภัยที่สุด! อยู่ในโซนเผาผลาญไขมันได้ดีเยี่ยม รักษาวินัยแบบนี้ต่อไป";
+        statusColor = "bg-emerald-500 border-emerald-400 text-white"; statusIcon = "fa-leaf";
+      } else {
+        if(food === 0) {
+            statusText = "รอการบันทึกมื้ออาหารของคุณวันนี้...";
+            statusColor = "bg-gray-700/50 border-gray-600 text-gray-400"; statusIcon = "fa-clock";
+        } else {
+            statusText = "เกณฑ์ทั่วไป อาหารเพียงพอต่อระบบเผาผลาญ แต่อาจยังไม่ตรงเป้าหมายที่ตั้งไว้";
+            statusColor = "bg-amber-500 border-amber-400 text-white"; statusIcon = "fa-scale-balanced";
+        }
+      }
+
+      box.innerHTML = `
+        <div class="p-5 rounded-2xl border flex items-center gap-4 shadow-lg ${statusColor} transition-colors duration-300 w-full h-full">
+          <div class="w-12 h-12 rounded-full bg-white/20 flex flex-shrink-0 items-center justify-center text-2xl"><i class="fa-solid ${statusIcon}"></i></div>
+          <div><p class="font-black mb-1 opacity-90 tracking-wide text-sm">การวิเคราะห์สุขภาพวันนี้</p><p class="font-medium text-base leading-snug">${statusText}</p></div>
+        </div>`;
+    }
+
+    // ================= Leaderboard =================
+    async function loadLeaderboard() {
+      const box = document.getElementById('leaderboardContainer'); box.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-3xl"></i></div>';
+      try { const res = await callAPI('getLeaderboard'); if (res.leaderboard) renderLeaderboard(res.leaderboard); } catch (e) { box.innerHTML = '<div class="text-center py-10 text-rose-500 font-bold">โหลดไม่สำเร็จ</div>'; }
+    }
     function renderLeaderboard(data) {
       const box = document.getElementById('leaderboardContainer'); box.innerHTML = '';
       if(data.length === 0) { box.innerHTML = '<p class="text-center text-gray-400 py-10">ยังไม่มีข้อมูลในระบบ</p>'; return; }
-      
       data.forEach((user, index) => {
-        let rankIcon = `<span class="text-2xl font-black text-gray-300">#${index+1}</span>`;
-        let bgStyle = "bg-white border-gray-100";
+        let rankIcon = `<span class="text-2xl font-black text-gray-300">#${index+1}</span>`; let bgStyle = "bg-white border-gray-100";
         if (index === 0) { rankIcon = '<i class="fa-solid fa-crown text-yellow-400 text-3xl drop-shadow-md"></i>'; bgStyle = "bg-gradient-to-r from-yellow-50 to-white border-yellow-200"; }
         else if (index === 1) { rankIcon = '<i class="fa-solid fa-medal text-gray-400 text-3xl drop-shadow-md"></i>'; bgStyle = "bg-gradient-to-r from-gray-50 to-white border-gray-200"; }
         else if (index === 2) { rankIcon = '<i class="fa-solid fa-medal text-amber-600 text-3xl drop-shadow-md"></i>'; bgStyle = "bg-gradient-to-r from-orange-50 to-white border-orange-200"; }
-
         box.innerHTML += `
         <div class="${bgStyle} p-5 rounded-2xl shadow-sm border flex items-center justify-between hover:shadow-md transition">
-            <div class="flex items-center gap-5">
-                <div class="w-12 text-center">${rankIcon}</div>
-                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-400 flex items-center justify-center text-white font-black text-2xl shadow-md">${user.name.charAt(0)}</div>
-                <div>
-                    <h4 class="font-bold text-gray-800 text-xl">${user.name}</h4>
-                    <p class="text-xs text-gray-400"><i class="fa-regular fa-clock"></i> อัปเดตล่าสุด: ${user.lastUpdate}</p>
-                </div>
-            </div>
-            <div class="text-right">
-                <p class="text-sm font-bold text-gray-400 mb-1">ลดไปแล้ว</p>
-                <p class="text-3xl font-black text-emerald-500">${user.lost > 0 ? '-' : ''}${user.lost.toFixed(1)} <span class="text-sm font-bold text-emerald-600/50">kg</span></p>
-            </div>
+            <div class="flex items-center gap-5"><div class="w-12 text-center">${rankIcon}</div><div class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-400 flex items-center justify-center text-white font-black text-2xl shadow-md">${user.name.charAt(0)}</div><div><h4 class="font-bold text-gray-800 text-xl">${user.name}</h4><p class="text-xs text-gray-400"><i class="fa-regular fa-clock"></i> อัปเดตล่าสุด: ${user.lastUpdate}</p></div></div>
+            <div class="text-right"><p class="text-sm font-bold text-gray-400 mb-1">ลดไปแล้ว</p><p class="text-3xl font-black text-emerald-500">${user.lost > 0 ? '-' : ''}${user.lost.toFixed(1)} <span class="text-sm font-bold text-emerald-600/50">kg</span></p></div>
         </div>`;
       });
     }
@@ -497,15 +544,12 @@
       input.addEventListener('input', function() {
         const query = this.value.toLowerCase(); dropdown.innerHTML = ''; card.classList.add('hidden'); 
         if (!query) { dropdown.classList.add('hidden'); document.getElementById(hiddenNameId).value = ""; if(isFood) { document.getElementById(hiddenCalId).value = 0; calcTotalFood(); } return; }
-        
         const currentDB = isFood ? globalFoodDB : globalExDB;
         const matches = currentDB.filter(item => { let itemName = typeof item === 'string' ? item : item.name; return itemName.toLowerCase().includes(query); });
-
         if (matches.length === 0) { dropdown.innerHTML = '<div class="p-4 text-center text-sm text-gray-400">ไม่พบข้อมูล กรุณาเพิ่มที่ด้านล่างครับ</div>'; } 
         else {
           matches.forEach(match => {
-            const div = document.createElement('div');
-            let itemName = typeof match === 'string' ? match : match.name; let itemCal = typeof match === 'string' ? '' : match.cal;
+            const div = document.createElement('div'); let itemName = typeof match === 'string' ? match : match.name; let itemCal = typeof match === 'string' ? '' : match.cal;
             div.className = 'px-5 py-3 border-b border-gray-50 hover:bg-indigo-50 cursor-pointer flex justify-between items-center transition';
             div.innerHTML = `<span class="font-bold text-gray-700">${itemName}</span> ${itemCal ? `<span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">${itemCal} kcal</span>` : ''}`;
             div.onclick = () => {
@@ -513,11 +557,9 @@
               document.getElementById(hiddenNameId).value = itemName; document.getElementById(nameDisplayId).innerText = itemName;
               if(isFood) { document.getElementById(hiddenCalId).value = itemCal; document.getElementById(baseCalId).innerText = itemCal; calcTotalFood(); }
               card.classList.remove('hidden');
-            };
-            dropdown.appendChild(div);
+            }; dropdown.appendChild(div);
           });
-        }
-        dropdown.classList.remove('hidden');
+        } dropdown.classList.remove('hidden');
       });
       document.addEventListener('click', (e) => { if (!input.contains(e.target) && !dropdown.contains(e.target)) { dropdown.classList.add('hidden'); } });
     }
@@ -530,49 +572,35 @@
 
     async function addFoodDB() {
       const name = document.getElementById('newFoodName').value, cal = document.getElementById('newFoodCal').value;
-      if(!name || !cal) return showToast("กรุณาใส่ชื่อและแคลอรี", 'error');
-      showLoading("เพิ่มฐานข้อมูล...");
+      if(!name || !cal) return showToast("กรุณาใส่ชื่อและแคลอรี", 'error'); showLoading("เพิ่มฐานข้อมูล...");
       try {
-        const res = await callAPI('addFoodToDB', { foodName: name, baseCalories: cal });
-        globalFoodDB = res.foodDB; document.getElementById('newFoodName').value = ''; document.getElementById('newFoodCal').value = '';
-        showToast("เพิ่มเมนูสำเร็จ!");
+        const res = await callAPI('addFoodToDB', { foodName: name, baseCalories: cal }); globalFoodDB = res.foodDB; document.getElementById('newFoodName').value = ''; document.getElementById('newFoodCal').value = ''; showToast("เพิ่มเมนูสำเร็จ!");
       } catch (err) { showToast(err.message, 'error'); } finally { hideLoading(); }
     }
 
     async function addFood() {
       const name = document.getElementById('hiddenFoodName').value; const cal = document.getElementById('displayTotalFoodCal').innerText;
-      if(!name) return showToast("กรุณาค้นหาและกดเลือกเมนู", 'error');
-      showLoading("บันทึกอาหาร...");
+      if(!name) return showToast("กรุณาค้นหาและกดเลือกเมนู", 'error'); showLoading("บันทึกอาหาร...");
       try {
         const newData = await callAPI('addFood', { userId: currentUser.userId, foodName: name, quantity: document.getElementById('foodQty').value, totalCalories: cal });
         updateUI(newData.food, null);
-        document.getElementById('hiddenFoodName').value = ''; document.getElementById('hiddenFoodCal').value = '0';
-        document.getElementById('foodSearchInput').placeholder = "พิมพ์ชื่อเมนู..."; document.getElementById('selectedFoodCard').classList.add('hidden');
-        document.getElementById('foodQty').value = 1; document.getElementById('displayTotalFoodCal').innerText = "0";
+        document.getElementById('hiddenFoodName').value = ''; document.getElementById('hiddenFoodCal').value = '0'; document.getElementById('foodSearchInput').placeholder = "พิมพ์ชื่อเมนู..."; document.getElementById('selectedFoodCard').classList.add('hidden'); document.getElementById('foodQty').value = 1; document.getElementById('displayTotalFoodCal').innerText = "0";
         showToast("บันทึกอาหารเรียบร้อย");
       } catch (err) { showToast(err.message, 'error'); } finally { hideLoading(); }
     }
 
     async function addExerciseDB() {
-      const name = document.getElementById('newExName').value;
-      if(!name) return showToast("กรุณาใส่ชื่อกิจกรรม", 'error');
-      showLoading("เพิ่มฐานข้อมูล...");
-      try {
-        const res = await callAPI('addExerciseToDB', { activityName: name });
-        globalExDB = res.exerciseDB; document.getElementById('newExName').value = '';
-        showToast("เพิ่มกิจกรรมสำเร็จ!");
-      } catch (err) { showToast(err.message, 'error'); } finally { hideLoading(); }
+      const name = document.getElementById('newExName').value; if(!name) return showToast("กรุณาใส่ชื่อกิจกรรม", 'error'); showLoading("เพิ่มฐานข้อมูล...");
+      try { const res = await callAPI('addExerciseToDB', { activityName: name }); globalExDB = res.exerciseDB; document.getElementById('newExName').value = ''; showToast("เพิ่มกิจกรรมสำเร็จ!"); } catch (err) { showToast(err.message, 'error'); } finally { hideLoading(); }
     }
 
     async function addExercise() {
       const name = document.getElementById('hiddenExName').value; const cal = document.getElementById('exCal').value;
-      if(!name || !cal) return showToast("กรุณาระบุกิจกรรมและแคลอรีที่เผาผลาญ", 'error');
-      showLoading("บันทึกกิจกรรม...");
+      if(!name || !cal) return showToast("กรุณาระบุแคลอรีที่เผาผลาญ", 'error'); showLoading("บันทึกกิจกรรม...");
       try {
         const newData = await callAPI('addExercise', { userId: currentUser.userId, activity: name, duration: document.getElementById('exDuration').value||0, heartRate: document.getElementById('exHR').value||"-", caloriesBurned: cal });
         updateUI(null, newData.exercise);
-        document.getElementById('hiddenExName').value = ''; document.getElementById('exSearchInput').placeholder = "พิมพ์ชื่อกิจกรรม...";
-        document.getElementById('selectedExCard').classList.add('hidden'); ['exDuration', 'exHR', 'exCal'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('hiddenExName').value = ''; document.getElementById('exSearchInput').placeholder = "พิมพ์ชื่อกิจกรรม..."; document.getElementById('selectedExCard').classList.add('hidden'); ['exDuration', 'exHR', 'exCal'].forEach(id => document.getElementById(id).value = '');
         showToast("บันทึกกิจกรรมเรียบร้อย");
       } catch (err) { showToast(err.message, 'error'); } finally { hideLoading(); }
     }
@@ -585,27 +613,31 @@
 
     function updateUI(foodData, exData) {
       if(foodData) {
-        document.getElementById('dashFoodCal').innerText = foodData.total; document.getElementById('tableFoodCal').innerText = foodData.total;
+        document.getElementById('dashFoodCal').innerText = foodData.total;
         const tb = document.getElementById('foodTableBody'); tb.innerHTML = '';
-        if(foodData.meals.length === 0) tb.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl">ยังไม่มีรายการอาหาร</div>';
+        if(foodData.meals.length === 0) tb.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl m-3">ยังไม่มีรายการอาหารวันนี้</div>';
         foodData.meals.forEach(m => {
-          tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-blue-200 transition">
+          tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-blue-200 transition mx-3">
             <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i class="fa-solid fa-utensils"></i></div><p class="font-bold text-gray-700">${m.name}</p></div>
-            <div class="flex items-center gap-4"><p class="text-xl font-black text-blue-600">${m.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteFood', '${m.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
+            <div class="flex items-center gap-4"><p class="text-xl font-black text-blue-600">${m.cal}</p><button onclick="deleteData('deleteFood', '${m.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
       if(exData) {
-        document.getElementById('dashBurnCal').innerText = exData.total; document.getElementById('tableExCal').innerText = exData.total;
+        document.getElementById('dashBurnCal').innerText = exData.total;
         const tb = document.getElementById('exTableBody'); tb.innerHTML = '';
-        if(exData.activities.length === 0) tb.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl">ยังไม่มีกิจกรรม</div>';
+        if(exData.activities.length === 0) tb.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl m-3">ยังไม่มีกิจกรรมวันนี้</div>';
         exData.activities.forEach(a => {
-          tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-orange-200 transition">
-            <div class="flex items-center gap-4">${getExIcon(a.name)}<div><p class="font-bold text-gray-700">${a.name}</p><p class="text-xs font-medium text-gray-500 mt-0.5"><i class="fa-regular fa-clock mr-1"></i> ${a.duration} นาที &nbsp;|&nbsp; <i class="fa-solid fa-heart-pulse mr-1"></i> HR: ${a.hr}</p></div></div>
-            <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
+          tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-orange-200 transition mx-3">
+            <div class="flex items-center gap-4">${getExIcon(a.name)}<div><p class="font-bold text-gray-700">${a.name}</p><p class="text-xs font-medium text-gray-500 mt-0.5"><i class="fa-regular fa-clock mr-1"></i> ${a.duration} นาที | HR: ${a.hr}</p></div></div>
+            <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal}</p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
+      
       const f = parseInt(document.getElementById('dashFoodCal').innerText)||0, b = parseInt(document.getElementById('dashBurnCal').innerText)||0;
       document.getElementById('dashNetCal').innerText = f - b;
+      
+      // เรียกใช้วิเคราะห์ความปลอดภัยทันที
+      analyzeEnergySafety();
     }
 
     async function deleteData(action, id) {
