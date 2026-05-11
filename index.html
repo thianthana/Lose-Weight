@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Health & Diet Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f3f4f6; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border-radius: 1rem;
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body class="h-screen flex items-center justify-center">
+
+  <div id="loginSection" class="glass-card p-10 w-full max-w-md mx-4">
+    <div class="text-center mb-8">
+      <i class="fa-solid fa-heart-pulse text-5xl text-emerald-500 mb-4"></i>
+      <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
+      <p class="text-gray-500 text-sm">กรุณากรอกรหัสผ่านเพื่อเริ่มติดตามสุขภาพ</p>
+    </div>
+    <input type="password" id="passcodeInput" placeholder="รหัสผ่าน..." class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-400 outline-none mb-4 text-center text-lg">
+    <button onclick="handleLogin()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition duration-300 shadow-lg">เข้าสู่ระบบ</button>
+  </div>
+
+  <div id="appSection" class="hidden w-full h-full p-4 md:p-8 overflow-y-auto">
+    
+    <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6">
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold gradient-text">ยินดีต้อนรับ, <span id="userNameDisplay"></span></h1>
+      </div>
+      <div class="flex gap-4">
+        <button onclick="exportData()" class="text-blue-500 hover:text-blue-700 font-medium"><i class="fa-solid fa-file-export mr-1"></i> ส่งออกข้อมูล</button>
+        <button onclick="logout()" class="text-red-500 hover:text-red-700 font-medium"><i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="glass-card p-6 bg-gradient-to-br from-orange-400 to-red-500 text-white transform hover:scale-105 transition">
+        <h3 class="text-lg opacity-90"><i class="fa-solid fa-fire mr-2"></i>Body Fat</h3>
+        <p class="text-4xl font-bold mt-2"><span id="dashFat">--</span> %</p>
+      </div>
+      
+      <div class="glass-card p-6 bg-white border-l-4 border-emerald-500">
+        <h3 class="text-gray-500 text-sm font-semibold">น้ำหนักปัจจุบัน</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2"><span id="dashWeight">--</span> kg</p>
+        <p class="text-emerald-500 text-sm mt-1"><i class="fa-solid fa-arrow-trend-down"></i> ลดไปแล้ว <span id="dashLost">0</span> kg</p>
+      </div>
+
+      <div class="glass-card p-6 bg-white border-l-4 border-blue-500">
+        <h3 class="text-gray-500 text-sm font-semibold">แคลอรีที่รับประทานวันนี้</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2"><span id="dashCalories">0</span> kcal</p>
+      </div>
+      
+       <div class="glass-card p-6 flex flex-col justify-center items-center gap-3 bg-gray-50">
+          <button onclick="switchTab('foodTab')" class="w-full bg-blue-100 text-blue-700 py-2 rounded-lg font-medium hover:bg-blue-200 transition"><i class="fa-solid fa-utensils mr-2"></i> บันทึกอาหาร</button>
+          <button onclick="switchTab('healthTab')" class="w-full bg-emerald-100 text-emerald-700 py-2 rounded-lg font-medium hover:bg-emerald-200 transition"><i class="fa-solid fa-weight-scale mr-2"></i> อัปเดตสุขภาพ</button>
+       </div>
+    </div>
+
+    <div id="foodTab" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <div class="glass-card p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-plus-circle text-blue-500 mr-2"></i>เพิ่มเมนูอาหารวันนี้</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-gray-600 text-sm mb-1">ชื่อเมนูอาหาร</label>
+            <input type="text" id="foodName" placeholder="เช่น ข้าวผัดไก่, อกไก่ปั่น..." class="w-full px-4 py-2 rounded border outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-gray-600 text-sm mb-1">จำนวนแคลอรี (Kcal)</label>
+            <input type="number" id="foodCal" placeholder="เว้นว่างไว้เพื่อใช้ AI วิเคราะห์..." class="w-full px-4 py-2 rounded border outline-none focus:border-blue-500">
+            <p class="text-xs text-gray-400 mt-1">*หากไม่ทราบ ปล่อยว่างไว้ ระบบจะใช้ Gemini AI ประเมินให้</p>
+          </div>
+          <button onclick="addFood()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-lg transition"><i class="fa-solid fa-robot mr-2"></i> บันทึกเมนู</button>
+        </div>
+      </div>
+
+      <div class="glass-card p-6 flex flex-col h-full">
+        <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-list text-orange-500 mr-2"></i>รายการอาหารวันนี้</h2>
+        <div class="overflow-y-auto flex-1">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-100 text-gray-600 text-sm uppercase">
+                <th class="p-3 rounded-tl-lg">เมนู</th>
+                <th class="p-3 text-center">แคลอรี</th>
+                <th class="p-3 rounded-tr-lg text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="foodTableBody" class="text-gray-700 text-sm">
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="healthTab" class="hidden glass-card p-6 max-w-2xl mx-auto">
+       <h2 class="text-xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-heart-circle-check text-emerald-500 mr-2"></i>อัปเดตข้อมูลสุขภาพรายวัน</h2>
+       <p class="text-sm text-gray-500 mb-4">* ไม่จำเป็นต้องกรอกทุกช่อง กรอกเฉพาะข้อมูลที่ต้องการอัปเดต</p>
+       
+       <div class="grid grid-cols-2 gap-4">
+         <div>
+            <label class="block text-gray-600 text-sm mb-1">น้ำหนัก (kg)</label>
+            <input type="number" step="0.1" id="hWeight" class="w-full px-4 py-2 rounded border outline-none">
+         </div>
+         <div>
+            <label class="block text-gray-600 text-sm mb-1">Body Fat (%)</label>
+            <input type="number" step="0.1" id="hFat" class="w-full px-4 py-2 rounded border outline-none">
+         </div>
+         <div>
+            <label class="block text-gray-600 text-sm mb-1">ระยะเวลาทำ IF (ชั่วโมง)</label>
+            <input type="number" id="hIF" placeholder="เช่น 16, 18, 20" class="w-full px-4 py-2 rounded border outline-none">
+         </div>
+         <div>
+            <label class="block text-gray-600 text-sm mb-1">โปรตีนรวม (กรัม)</label>
+            <input type="number" id="hProtein" placeholder="เช่น 120" class="w-full px-4 py-2 rounded border outline-none">
+         </div>
+         <div class="col-span-2">
+            <label class="block text-gray-600 text-sm mb-1">จำนวนก้าวเดิน</label>
+            <input type="number" id="hSteps" placeholder="เช่น 10000" class="w-full px-4 py-2 rounded border outline-none">
+         </div>
+       </div>
+       <button onclick="updateHealth()" class="w-full mt-6 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition shadow-md">บันทึกข้อมูลสุขภาพ</button>
+    </div>
+
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    // การจัดการ UI Tabs
+    function switchTab(tabId) {
+      document.getElementById('foodTab').classList.add('hidden');
+      document.getElementById('healthTab').classList.add('hidden');
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    // ฟังก์ชันเข้าสู่ระบบ
+    function handleLogin() {
+      const pass = document.getElementById('passcodeInput').value;
+      if (!pass) return alert("กรุณากรอกรหัสผ่าน");
+      
+      const btn = event.target;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังตรวจสอบ...';
+      
+      google.script.run.withSuccessHandler(res => {
+        btn.innerHTML = 'เข้าสู่ระบบ';
+        if (res.success) {
+          currentUser = res;
+          document.getElementById('loginSection').style.display = 'none';
+          document.getElementById('appSection').classList.remove('hidden');
+          document.body.classList.remove('items-center', 'justify-center');
+          
+          document.getElementById('userNameDisplay').innerText = currentUser.name;
+          refreshDashboard();
+        } else {
+          alert(res.message);
+        }
+      }).verifyLogin(pass);
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('appSection').classList.add('hidden');
+      document.getElementById('loginSection').style.display = 'block';
+      document.body.classList.add('items-center', 'justify-center');
+      document.getElementById('passcodeInput').value = '';
+    }
+
+    // โหลดข้อมูล Dashboard และ อาหาร
+    function refreshDashboard() {
+      // ดึงสถิติน้ำหนักและแฟต
+      google.script.run.withSuccessHandler(data => {
+        document.getElementById('dashWeight').innerText = data.currentWeight;
+        document.getElementById('dashLost').innerText = data.weightLost.toFixed(1);
+        document.getElementById('dashFat').innerText = data.bodyFat;
+      }).getDashboardData(currentUser.userId, currentUser.initialWeight);
+
+      // ดึงรายการอาหารวันนี้
+      google.script.run.withSuccessHandler(updateFoodTable).getTodayFood(currentUser.userId);
+    }
+
+    // อัปเดตตารางและรวมแคลอรี
+    function updateFoodTable(data) {
+      document.getElementById('dashCalories').innerText = data.total;
+      const tbody = document.getElementById('foodTableBody');
+      tbody.innerHTML = '';
+      
+      if (data.meals.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400">ยังไม่มีรายการอาหารวันนี้</td></tr>';
+        return;
+      }
+
+      data.meals.forEach(meal => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b hover:bg-gray-50 transition';
+        tr.innerHTML = `
+          <td class="p-3">${meal.name}</td>
+          <td class="p-3 text-center font-semibold text-blue-600">${meal.cal}</td>
+          <td class="p-3 text-center">
+            <button onclick="deleteFood('${meal.id}')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // เพิ่มอาหาร
+    function addFood() {
+      const name = document.getElementById('foodName').value;
+      const cal = document.getElementById('foodCal').value;
+      if (!name) return alert("กรุณาใส่ชื่อเมนูอาหาร");
+
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
+      btn.disabled = true;
+
+      google.script.run.withSuccessHandler(data => {
+        updateFoodTable(data);
+        document.getElementById('foodName').value = '';
+        document.getElementById('foodCal').value = '';
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }).saveFoodLog(currentUser.userId, name, cal);
+    }
+
+    // ลบอาหาร
+    function deleteFood(logId) {
+      if(confirm("ต้องการลบรายการนี้ใช่หรือไม่?")) {
+        google.script.run.withSuccessHandler(updateFoodTable).deleteFoodLog(logId, currentUser.userId);
+      }
+    }
+
+    // อัปเดตสุขภาพ
+    function updateHealth() {
+      const w = document.getElementById('hWeight').value;
+      const f = document.getElementById('hFat').value;
+      const i = document.getElementById('hIF').value;
+      const p = document.getElementById('hProtein').value;
+      const s = document.getElementById('hSteps').value;
+
+      const btn = event.target;
+      btn.innerHTML = 'กำลังบันทึก...';
+      
+      google.script.run.withSuccessHandler(() => {
+        alert("บันทึกข้อมูลสุขภาพเรียบร้อยแล้ว");
+        btn.innerHTML = 'บันทึกข้อมูลสุขภาพ';
+        refreshDashboard(); // รีเฟรชหน้าบอร์ด
+        // เคลียร์ฟอร์ม
+        document.getElementById('hWeight').value = '';
+        document.getElementById('hFat').value = '';
+        document.getElementById('hIF').value = '';
+        document.getElementById('hProtein').value = '';
+        document.getElementById('hSteps').value = '';
+        switchTab('foodTab'); // กลับไปหน้าแรก
+      }).saveHealthLog(currentUser.userId, w, f, i, p, s);
+    }
+
+    function exportData() {
+      google.script.run.withSuccessHandler(url => {
+        window.open(url, '_blank');
+      }).getExportUrl();
+    }
+  </script>
+</body>
+</html>
