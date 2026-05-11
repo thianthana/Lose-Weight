@@ -13,8 +13,13 @@
     .sidebar-item { transition: all 0.2s; cursor: pointer; }
     .sidebar-item:hover:not(.sidebar-active) { background-color: #f8fafc; }
     input[type="password"]::-ms-reveal { display: none; }
-    /* ซ่อนลูกศรใน input number */
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    
+    /* Scrollbar สำหรับ Dropdown ค้นหา */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
 <body class="h-screen flex items-center justify-center overflow-hidden bg-[#e2e8f0]">
@@ -51,25 +56,16 @@
       
       <div id="view-dashboard" class="animate-fade-in max-w-6xl mx-auto space-y-8">
         <h2 class="text-3xl font-bold text-gray-800">แดชบอร์ดสุขภาพวันนี้</h2>
-
+        
         <div class="bg-gray-900 rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden">
           <i class="fa-solid fa-bolt absolute right-[-20px] bottom-[-20px] text-9xl opacity-10"></i>
           <h3 class="text-gray-400 font-semibold mb-6 flex items-center"><i class="fa-solid fa-calculator mr-2 text-indigo-400"></i> แคลอรีสุทธิ (Net Calories)</h3>
           <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center items-center">
-            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md">
-              <p class="text-sm text-gray-400 mb-1">รับเข้า (อาหาร)</p>
-              <p class="text-3xl font-bold text-emerald-400" id="dashFoodCal">0</p>
-            </div>
+            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md"><p class="text-sm text-gray-400 mb-1">รับเข้า (อาหาร)</p><p class="text-3xl font-bold text-emerald-400" id="dashFoodCal">0</p></div>
             <div class="text-2xl text-gray-600 hidden md:block"><i class="fa-solid fa-minus"></i></div>
-            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md">
-              <p class="text-sm text-gray-400 mb-1">เผาผลาญ (กิจกรรม)</p>
-              <p class="text-3xl font-bold text-orange-400" id="dashBurnCal">0</p>
-            </div>
+            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md"><p class="text-sm text-gray-400 mb-1">เผาผลาญ (กิจกรรม)</p><p class="text-3xl font-bold text-orange-400" id="dashBurnCal">0</p></div>
             <div class="text-2xl text-gray-600 hidden md:block"><i class="fa-solid fa-equals"></i></div>
-            <div class="bg-indigo-600 p-5 rounded-2xl shadow-lg border border-indigo-500">
-              <p class="text-sm text-indigo-200 mb-1">แคลอรีสุทธิ</p>
-              <p class="text-4xl font-black text-white" id="dashNetCal">0</p>
-            </div>
+            <div class="bg-indigo-600 p-5 rounded-2xl shadow-lg border border-indigo-500"><p class="text-sm text-indigo-200 mb-1">แคลอรีสุทธิ</p><p class="text-4xl font-black text-white" id="dashNetCal">0</p></div>
           </div>
         </div>
 
@@ -115,30 +111,44 @@
             <div class="glass-card p-8 border-t-4 border-blue-500 relative">
               <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-utensils text-blue-500 mr-2"></i>เลือกเมนูอาหาร</h3>
               
-              <div class="mb-5 relative">
-                <label class="block text-sm font-bold text-gray-600 mb-2">พิมพ์หรือเลือกเมนูจากฐานข้อมูล</label>
+              <div class="relative mb-6">
+                <label class="block text-sm font-bold text-gray-600 mb-2">ค้นหาเมนูอาหาร</label>
                 <div class="relative">
                   <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input type="text" id="foodInput" list="foodList" oninput="onFoodSelect()" placeholder="พิมพ์ชื่อเมนู..." class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition text-gray-800 font-medium">
+                  <input type="text" id="foodSearchInput" placeholder="พิมพ์ชื่อเมนู..." autocomplete="off" class="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition text-gray-800 font-bold">
                 </div>
-                <datalist id="foodList"></datalist>
-                <p id="foodWarning" class="text-xs text-red-500 mt-2 hidden">*ไม่พบเมนูนี้ กรุณาเพิ่มลงฐานข้อมูลก่อน</p>
+                <div id="foodCustomDropdown" class="hidden absolute z-30 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
+                  </div>
               </div>
 
-              <input type="hidden" id="selectedFoodCal" value="0">
+              <div id="selectedFoodCard" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 flex items-center justify-between transition-all">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fa-solid fa-check"></i></div>
+                  <div>
+                    <p class="text-xs text-blue-500 font-bold mb-0.5">เมนูที่เลือก</p>
+                    <p class="text-lg font-bold text-blue-800" id="selectedFoodNameDisplay">-</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-bold text-blue-600"><span id="selectedFoodBaseCalDisplay">0</span> kcal</p>
+                </div>
+              </div>
+
+              <input type="hidden" id="hiddenFoodName">
+              <input type="hidden" id="hiddenFoodCal" value="0">
 
               <div class="mb-6">
                 <label class="block text-sm font-bold text-gray-600 mb-2">จำนวน (จาน/ชิ้น)</label>
                 <div class="flex items-center bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2">
-                  <button onclick="changeQty('foodQty', -1); onFoodSelect()" class="text-gray-400 hover:text-blue-600 text-xl px-4 py-2"><i class="fa-solid fa-minus"></i></button>
-                  <input type="number" id="foodQty" value="1" min="1" oninput="onFoodSelect()" class="w-full bg-transparent text-center font-bold text-2xl outline-none border-none text-gray-800">
-                  <button onclick="changeQty('foodQty', 1); onFoodSelect()" class="text-gray-400 hover:text-blue-600 text-xl px-4 py-2"><i class="fa-solid fa-plus"></i></button>
+                  <button onclick="changeQty('foodQty', -1); calcTotalFood()" class="text-gray-400 hover:text-blue-600 text-xl px-4 py-2"><i class="fa-solid fa-minus"></i></button>
+                  <input type="number" id="foodQty" value="1" min="1" oninput="calcTotalFood()" class="w-full bg-transparent text-center font-bold text-2xl outline-none border-none text-gray-800">
+                  <button onclick="changeQty('foodQty', 1); calcTotalFood()" class="text-gray-400 hover:text-blue-600 text-xl px-4 py-2"><i class="fa-solid fa-plus"></i></button>
                 </div>
               </div>
 
-              <div class="bg-blue-50 rounded-2xl p-5 text-center mb-6">
-                <p class="text-sm text-blue-600 font-bold mb-1">แคลอรีที่จะบันทึก</p>
-                <p class="text-4xl font-black text-blue-700"><span id="displayFoodCal">0</span> <span class="text-base font-normal">kcal</span></p>
+              <div class="bg-gray-800 rounded-2xl p-5 text-center mb-6 shadow-inner">
+                <p class="text-sm text-gray-400 font-bold mb-1">แคลอรีรวม</p>
+                <p class="text-4xl font-black text-white"><span id="displayTotalFoodCal">0</span> <span class="text-base font-normal">kcal</span></p>
               </div>
               <button id="addFoodBtn" onclick="addFood()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition text-lg">บันทึกอาหาร</button>
             </div>
@@ -171,30 +181,40 @@
             <div class="glass-card p-8 border-t-4 border-orange-500">
               <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-fire-flame-curved text-orange-500 mr-2"></i>บันทึกกิจกรรม</h3>
               
-              <div class="mb-5 relative">
-                <label class="block text-sm font-bold text-gray-600 mb-2">พิมพ์หรือเลือกกิจกรรม</label>
+              <div class="relative mb-6">
+                <label class="block text-sm font-bold text-gray-600 mb-2">ค้นหากิจกรรม</label>
                 <div class="relative">
-                  <i class="fa-solid fa-person-running absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input type="text" id="exInput" list="exList" placeholder="เช่น วิ่ง, เวท..." class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-orange-500 focus:bg-white transition text-gray-800 font-medium">
+                  <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                  <input type="text" id="exSearchInput" placeholder="พิมพ์ชื่อกิจกรรม..." autocomplete="off" class="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-50 transition text-gray-800 font-bold">
                 </div>
-                <datalist id="exList"></datalist>
+                <div id="exCustomDropdown" class="hidden absolute z-30 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar"></div>
               </div>
+
+              <div id="selectedExCard" class="hidden bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-6 flex items-center gap-3 transition-all">
+                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><i class="fa-solid fa-check"></i></div>
+                <div>
+                  <p class="text-xs text-orange-500 font-bold mb-0.5">กิจกรรมที่เลือก</p>
+                  <p class="text-lg font-bold text-orange-800" id="selectedExNameDisplay">-</p>
+                </div>
+              </div>
+
+              <input type="hidden" id="hiddenExName">
 
               <div class="grid grid-cols-2 gap-4 mb-5">
                 <div>
                   <label class="block text-sm font-bold text-gray-600 mb-2">เวลา (นาที)</label>
-                  <input type="number" id="exDuration" placeholder="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-orange-500 text-center font-bold">
+                  <input type="number" id="exDuration" placeholder="0" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-orange-500 text-center font-bold">
                 </div>
                 <div>
                   <label class="block text-sm font-bold text-gray-600 mb-2">Avg. HR (bpm)</label>
-                  <input type="number" id="exHR" placeholder="-" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-orange-500 text-center">
+                  <input type="number" id="exHR" placeholder="-" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-orange-500 text-center font-bold">
                 </div>
               </div>
               
               <div class="mb-6">
                 <label class="block text-sm font-bold text-gray-600 mb-2">แคลอรีที่เผาผลาญ</label>
                 <div class="relative">
-                  <input type="number" id="exCal" placeholder="ดูจาก Smart Watch..." class="w-full px-4 py-4 bg-orange-50 border border-orange-200 rounded-2xl outline-none focus:border-orange-500 text-orange-800 font-bold text-xl">
+                  <input type="number" id="exCal" placeholder="ดูจาก Smart Watch..." class="w-full px-4 py-4 bg-orange-50 border border-orange-200 rounded-2xl outline-none focus:border-orange-500 text-orange-800 font-black text-2xl">
                   <span class="absolute right-5 top-1/2 transform -translate-y-1/2 text-orange-500 font-bold">kcal</span>
                 </div>
               </div>
@@ -210,8 +230,8 @@
 
           <div class="lg:col-span-7 glass-card p-0 flex flex-col min-h-[500px] overflow-hidden">
             <div class="p-6 border-b bg-white flex justify-between items-center rounded-t-[1.5rem]">
-              <h3 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-list-check text-orange-500 mr-2"></i> กิจกรรมวันนี้</h3>
-              <span class="bg-orange-100 text-orange-800 px-4 py-2 rounded-full font-bold">เผาผลาญ <span id="tableExCal">0</span> kcal</span>
+              <h3 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-list-check text-orange-500 mr-3"></i> กิจกรรมวันนี้</h3>
+              <span class="bg-orange-100 text-orange-800 px-4 py-2 rounded-full font-bold shadow-sm">เผาผลาญ <span id="tableExCal">0</span> kcal</span>
             </div>
             <div class="overflow-y-auto flex-1 bg-gray-50/50 p-4">
               <div id="exTableBody" class="space-y-3"></div>
@@ -282,16 +302,12 @@
   <style>.animate-fade-in { animation: fadeIn 0.3s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>
 
   <script>
-    // ==========================================
-    // ใส่ URL Web App ของคุณ
-    // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ9QeyuS4oCLoRQkqUZzfF60u5CwgO4wjn9q2tbGlvgu47uuNaOu06rGMCghuuOgRO/exec"; 
     
     let currentUser = null;
     let globalFoodDB = []; 
     let globalExDB = [];
 
-    // ไอคอนออกกำลังกายอัตโนมัติ
     const exIcons = [
       { keys: ["วิ่ง", "ลู่"], bg: "bg-blue-100 text-blue-500", icon: "fa-person-running" },
       { keys: ["เดิน"], bg: "bg-emerald-100 text-emerald-500", icon: "fa-person-walking" },
@@ -337,20 +353,9 @@
     async function refreshDashboard() {
       try {
         const data = await callAPI('getDashboard', { userId: currentUser.userId, initialWeight: currentUser.initialWeight, height: currentUser.height });
+        if(data.foodDB) globalFoodDB = data.foodDB;
+        if(data.exerciseDB) globalExDB = data.exerciseDB;
         
-        // อัปเดต Datalist อาหาร
-        if(data.foodDB) {
-          globalFoodDB = data.foodDB;
-          const fList = document.getElementById('foodList'); fList.innerHTML = '';
-          globalFoodDB.forEach(f => fList.innerHTML += `<option value="${f.name}">`);
-        }
-        // อัปเดต Datalist ออกกำลังกาย
-        if(data.exerciseDB) {
-          globalExDB = data.exerciseDB;
-          const eList = document.getElementById('exList'); eList.innerHTML = '';
-          globalExDB.forEach(e => eList.innerHTML += `<option value="${e}">`);
-        }
-
         if(data.dashboard) {
           const db = data.dashboard;
           ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein', 'BMR', 'MetabolicAge'].forEach(id => {
@@ -364,29 +369,91 @@
       } catch (err) { console.error(err); }
     }
 
-    // ================= Datalist Logic =================
-    function onFoodSelect() {
-      const inputVal = document.getElementById('foodInput').value;
-      const warn = document.getElementById('foodWarning');
-      const found = globalFoodDB.find(f => f.name === inputVal);
+    // ================= Custom Dropdown (အစား & ออกกำลังกาย) =================
+    function setupCustomDropdown(inputId, dropdownId, cardId, nameDisplayId, baseCalId, hiddenNameId, hiddenCalId, dbArray, isFood) {
+      const input = document.getElementById(inputId);
+      const dropdown = document.getElementById(dropdownId);
+      const card = document.getElementById(cardId);
       
-      if(inputVal && !found) { warn.classList.remove('hidden'); document.getElementById('displayFoodCal').innerText = 0; } 
-      else { warn.classList.add('hidden'); }
+      input.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        dropdown.innerHTML = '';
+        card.classList.add('hidden'); // ซ่อนการ์ดระหว่างพิมพ์ค้นหาใหม่
+        
+        // ถ้าช่องค้นหาว่าง ให้รีเซ็ตค่า
+        if (!query) { 
+          dropdown.classList.add('hidden'); 
+          document.getElementById(hiddenNameId).value = "";
+          if(isFood) {
+            document.getElementById(hiddenCalId).value = 0;
+            calcTotalFood();
+          }
+          return; 
+        }
+        
+        const matches = dbArray.filter(item => {
+           let itemName = typeof item === 'string' ? item : item.name;
+           return itemName.toLowerCase().includes(query);
+        });
 
-      if(found) {
-        document.getElementById('selectedFoodCal').value = found.cal;
-        const qty = parseInt(document.getElementById('foodQty').value) || 1;
-        document.getElementById('displayFoodCal').innerText = found.cal * qty;
-      }
+        if (matches.length === 0) {
+          dropdown.innerHTML = '<div class="p-4 text-center text-sm text-gray-400">ไม่พบข้อมูล กรุณาเพิ่มลงฐานข้อมูลด้านล่าง</div>';
+        } else {
+          matches.forEach(match => {
+            const div = document.createElement('div');
+            let itemName = typeof match === 'string' ? match : match.name;
+            let itemCal = typeof match === 'string' ? '' : match.cal;
+            
+            // สไตล์ของแต่ละบรรทัดใน Dropdown
+            div.className = 'px-5 py-3 border-b border-gray-50 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition';
+            div.innerHTML = `<span class="font-bold text-gray-700">${itemName}</span> ${itemCal ? `<span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">${itemCal} kcal</span>` : ''}`;
+            
+            div.onclick = () => {
+              // พอกดเลือก
+              input.value = ''; // เคลียร์ช่องค้นหา
+              input.placeholder = "เลือกเมนูอื่นคลิกพิมพ์ใหม่...";
+              dropdown.classList.add('hidden');
+              
+              document.getElementById(hiddenNameId).value = itemName;
+              document.getElementById(nameDisplayId).innerText = itemName;
+              
+              if(isFood) {
+                document.getElementById(hiddenCalId).value = itemCal;
+                document.getElementById(baseCalId).innerText = itemCal;
+                calcTotalFood();
+              }
+              
+              // โชว์การ์ดสีๆ
+              card.classList.remove('hidden');
+            };
+            dropdown.appendChild(div);
+          });
+        }
+        dropdown.classList.remove('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) { dropdown.classList.add('hidden'); }
+      });
     }
 
+    // เปิดใช้งาน
+    setupCustomDropdown('foodSearchInput', 'foodCustomDropdown', 'selectedFoodCard', 'selectedFoodNameDisplay', 'selectedFoodBaseCalDisplay', 'hiddenFoodName', 'hiddenFoodCal', globalFoodDB, true);
+    setupCustomDropdown('exSearchInput', 'exCustomDropdown', 'selectedExCard', 'selectedExNameDisplay', null, 'hiddenExName', null, globalExDB, false);
+
+    // ================= การทำงานอาหาร =================
     function changeQty(id, amt) {
       const el = document.getElementById(id);
       let val = parseInt(el.value) || 1;
       if (val + amt >= 1) el.value = val + amt;
     }
 
-    // ================= เพิ่มฐานข้อมูล =================
+    function calcTotalFood() {
+      const baseCal = parseInt(document.getElementById('hiddenFoodCal').value) || 0;
+      const qty = parseInt(document.getElementById('foodQty').value) || 1;
+      document.getElementById('displayTotalFoodCal').innerText = baseCal * qty;
+    }
+
     async function addFoodDB() {
       const name = document.getElementById('newFoodName').value, cal = document.getElementById('newFoodCal').value;
       if(!name || !cal) return alert("กรุณาใส่ชื่อและแคลอรี");
@@ -394,13 +461,33 @@
       try {
         const res = await callAPI('addFoodToDB', { foodName: name, baseCalories: cal });
         globalFoodDB = res.foodDB;
-        const fList = document.getElementById('foodList'); fList.innerHTML = '';
-        globalFoodDB.forEach(f => fList.innerHTML += `<option value="${f.name}">`);
         document.getElementById('newFoodName').value = ''; document.getElementById('newFoodCal').value = '';
+        setupCustomDropdown('foodSearchInput', 'foodCustomDropdown', 'selectedFoodCard', 'selectedFoodNameDisplay', 'selectedFoodBaseCalDisplay', 'hiddenFoodName', 'hiddenFoodCal', globalFoodDB, true);
         alert("เพิ่มเมนูสำเร็จ! พิมพ์ค้นหาที่ช่องด้านบนได้เลย");
       } catch (err) { alert(err.message); } finally { btn.innerHTML = 'เพิ่มลงฐานข้อมูล'; btn.disabled = false; }
     }
 
+    async function addFood() {
+      const name = document.getElementById('hiddenFoodName').value;
+      const cal = document.getElementById('displayTotalFoodCal').innerText;
+      if(!name) return alert("กรุณาค้นหาและกดเลือกเมนูอาหารก่อนครับ");
+
+      const btn = document.getElementById('addFoodBtn'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
+      try {
+        const newData = await callAPI('addFood', { userId: currentUser.userId, foodName: name, quantity: document.getElementById('foodQty').value, totalCalories: cal });
+        updateUI(newData.food, null);
+        
+        // Reset
+        document.getElementById('hiddenFoodName').value = ''; 
+        document.getElementById('hiddenFoodCal').value = '0';
+        document.getElementById('foodSearchInput').placeholder = "พิมพ์ชื่อเมนู...";
+        document.getElementById('selectedFoodCard').classList.add('hidden');
+        document.getElementById('foodQty').value = 1; 
+        document.getElementById('displayTotalFoodCal').innerText = "0";
+      } catch (err) { alert(err.message); } finally { btn.innerHTML = 'บันทึกอาหาร'; btn.disabled = false; }
+    }
+
+    // ================= การทำงานออกกำลังกาย =================
     async function addExerciseDB() {
       const name = document.getElementById('newExName').value;
       if(!name) return alert("กรุณาใส่ชื่อกิจกรรม");
@@ -408,38 +495,28 @@
       try {
         const res = await callAPI('addExerciseToDB', { activityName: name });
         globalExDB = res.exerciseDB;
-        const eList = document.getElementById('exList'); eList.innerHTML = '';
-        globalExDB.forEach(e => eList.innerHTML += `<option value="${e}">`);
         document.getElementById('newExName').value = '';
+        setupCustomDropdown('exSearchInput', 'exCustomDropdown', 'selectedExCard', 'selectedExNameDisplay', null, 'hiddenExName', null, globalExDB, false);
         alert("เพิ่มกิจกรรมสำเร็จ!");
       } catch (err) { alert(err.message); } finally { btn.innerHTML = 'บันทึกชื่อกิจกรรม'; btn.disabled = false; }
     }
 
-    // ================= บันทึก & อัปเดต UI =================
-    async function addFood() {
-      const name = document.getElementById('foodInput').value;
-      const cal = document.getElementById('displayFoodCal').innerText;
-      if(!name) return alert("กรุณาเลือกเมนู");
-      if(cal == 0) return alert("กรุณาเพิ่มเมนูลงฐานข้อมูลก่อนครับ");
-
-      const btn = document.getElementById('addFoodBtn'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
-      try {
-        const newData = await callAPI('addFood', { userId: currentUser.userId, foodName: name, quantity: document.getElementById('foodQty').value, totalCalories: cal });
-        updateUI(newData.food, null);
-        document.getElementById('foodInput').value = ''; document.getElementById('displayFoodCal').innerText = '0';
-      } catch (err) { alert(err.message); } finally { btn.innerHTML = 'บันทึกอาหาร'; btn.disabled = false; }
-    }
-
     async function addExercise() {
-      const name = document.getElementById('exInput').value;
+      const name = document.getElementById('hiddenExName').value;
       const cal = document.getElementById('exCal').value;
-      if(!name || !cal) return alert("กรุณาระบุกิจกรรมและแคลอรีที่เผาผลาญ");
+      if(!name) return alert("กรุณาค้นหาและกดเลือกกิจกรรมก่อนครับ");
+      if(!cal) return alert("กรุณาระบุแคลอรีที่เผาผลาญ");
 
       const btn = document.getElementById('addExBtn'); btn.innerHTML = 'กำลังบันทึก...'; btn.disabled = true;
       try {
         const newData = await callAPI('addExercise', { userId: currentUser.userId, activity: name, duration: document.getElementById('exDuration').value||0, heartRate: document.getElementById('exHR').value||"-", caloriesBurned: cal });
         updateUI(null, newData.exercise);
-        ['exInput', 'exDuration', 'exHR', 'exCal'].forEach(id => document.getElementById(id).value = '');
+        
+        // Reset
+        document.getElementById('hiddenExName').value = ''; 
+        document.getElementById('exSearchInput').placeholder = "พิมพ์ชื่อกิจกรรม...";
+        document.getElementById('selectedExCard').classList.add('hidden');
+        ['exDuration', 'exHR', 'exCal'].forEach(id => document.getElementById(id).value = '');
       } catch (err) { alert(err.message); } finally { btn.innerHTML = 'บันทึกกิจกรรม'; btn.disabled = false; }
     }
 
@@ -471,7 +548,6 @@
             <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal}</p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
-      // อัปเดต Net Calories
       const f = parseInt(document.getElementById('dashFoodCal').innerText)||0, b = parseInt(document.getElementById('dashBurnCal').innerText)||0;
       document.getElementById('dashNetCal').innerText = f - b;
     }
