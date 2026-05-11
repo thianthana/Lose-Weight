@@ -6,26 +6,40 @@
   <title>Health Tracking Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Kanit', sans-serif; background-color: #f3f6f9; }
-    .glass-card { background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-radius: 1.25rem; border: 1px solid #edf2f7; }
-    .sidebar-active { background-color: #eef2ff; color: #4f46e5; border-right: 3px solid #4f46e5; font-weight: 600; }
-    .sidebar-item { transition: all 0.2s; cursor: pointer; border-right: 3px solid transparent; }
+    .glass-card { background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-radius: 1.25rem; border: 1px solid #edf2f7; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .glass-card:hover { box-shadow: 0 15px 50px -10px rgba(0,0,0,0.1); }
+    .sidebar-active { background-color: #eef2ff; color: #4f46e5; border-right: 3px solid #4f46e5; font-weight: 600; transform: translateX(4px); }
+    .sidebar-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border-right: 3px solid transparent; }
     input[type="password"]::-ms-reveal { display: none; }
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .bg-animate { background: linear-gradient(-45deg, #4f46e5, #3b82f6, #06b6d4, #8b5cf6); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
-    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    .toast-enter { animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    /* Animations */
+    .bg-animate { background: linear-gradient(-45deg, #4f46e5, #3b82f6, #06b6d4, #8b5cf6); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
+    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    .toast-enter { animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .toast-leave { animation: toastOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes toastIn { from { transform: translateX(100%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+    @keyframes toastOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(120%) scale(0.9); opacity: 0; } }
+    .animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Login Premium Effect */
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .app-ready { animation: appFadeIn 0.8s ease-out forwards; }
-    @keyframes appFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes appFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
-<body class="h-screen flex items-center justify-center overflow-hidden transition-colors duration-500 bg-animate" id="bodyContainer">
+<body class="h-screen flex items-center justify-center overflow-hidden transition-colors duration-1000 bg-animate" id="bodyContainer">
 
   <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] hidden flex-col items-center justify-center transition-all duration-500 opacity-0">
     <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl flex flex-col items-center min-w-[280px] transform transition-transform duration-500 scale-95" id="loadingBox">
@@ -35,7 +49,7 @@
         <i class="fa-solid fa-cloud-arrow-down absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl text-indigo-600"></i>
       </div>
       <h3 class="text-xl font-bold text-gray-800 mb-2">โปรดรอสักครู่</h3>
-      <p class="font-medium text-gray-500 text-sm" id="loadingText">กำลังดึงข้อมูลของคุณอยู่...</p>
+      <p class="font-medium text-gray-500 text-sm" id="loadingText">กำลังซิงค์ข้อมูลกับระบบ...</p>
     </div>
   </div>
 
@@ -46,20 +60,43 @@
       <i class="fa-solid fa-hourglass-half fa-spin text-rose-500 text-4xl mb-4"></i>
       <h3 class="text-xl font-bold mb-2">เซสชันกำลังหมดอายุ</h3>
       <p class="text-sm text-gray-500 mb-6">ระบบจะออกอัตโนมัติในอีก <span id="countdownTimer" class="font-black text-rose-500 text-2xl">30</span> วินาที</p>
-      <button onclick="continueSession()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md text-sm hover:bg-indigo-700 transition">ใช้เว็บไซต์ต่อ</button>
+      <button onclick="continueSession()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md text-sm hover:bg-indigo-700 active:scale-95 transition-all">ใช้เว็บไซต์ต่อ</button>
     </div>
   </div>
 
-  <div id="loginSection" class="bg-white/95 backdrop-blur-xl p-8 w-full max-w-md mx-4 rounded-3xl shadow-2xl relative transition-all duration-500">
-    <div class="text-center mb-8">
-      <div class="bg-gradient-to-tr from-indigo-600 to-blue-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"><i class="fa-solid fa-bolt text-3xl text-white"></i></div>
-      <h2 class="text-2xl font-extrabold text-gray-800 tracking-tight">Tracking Pro</h2>
+  <div id="loginSection" class="relative w-full max-w-md mx-4 transition-all duration-1000 ease-in-out">
+    <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-400 rounded-3xl blur-lg opacity-40 animate-pulse duration-1000"></div>
+    <div class="relative bg-white/95 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20">
+      
+      <div id="loginForm" class="transition-all duration-500">
+        <div class="text-center mb-8 animate-float">
+          <div class="bg-gradient-to-tr from-indigo-600 to-blue-500 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_0_25px_rgba(79,70,229,0.5)]">
+            <i class="fa-solid fa-bolt text-4xl text-white"></i>
+          </div>
+          <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">Tracking Pro</h2>
+          <p class="text-sm text-gray-500 font-medium mt-2 tracking-wide uppercase">Unlock your potential</p>
+        </div>
+        <div class="relative mb-8">
+          <input type="password" id="passcodeInput" placeholder="ระบุรหัสผ่านของคุณ..." class="w-full px-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 outline-none text-center text-lg font-black tracking-widest focus:border-indigo-500 focus:bg-white transition-all shadow-inner text-indigo-900 placeholder-gray-400">
+          <button onclick="togglePassword()" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition"><i id="eyeIcon" class="fa-solid fa-eye-slash text-xl"></i></button>
+        </div>
+        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-xl hover:bg-indigo-700 hover:shadow-indigo-500/40 active:scale-95 transition-all text-lg flex justify-center items-center gap-2">
+          เข้าสู่ระบบ <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+      </div>
+
+      <div id="welcomeScreen" class="hidden flex-col items-center justify-center py-6 text-center opacity-0 transition-opacity duration-500">
+        <div class="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.4)] animate-fade-in-up">
+          <i class="fa-solid fa-check text-5xl text-emerald-500"></i>
+        </div>
+        <h2 class="text-2xl font-extrabold text-gray-800 mb-3 animate-fade-in-up" style="animation-delay: 0.1s;" id="welcomeName">ยินดีต้อนรับครับ...</h2>
+        <div class="flex items-center justify-center gap-3 text-indigo-500 font-bold bg-indigo-50 px-5 py-2.5 rounded-full animate-fade-in-up" style="animation-delay: 0.2s;">
+          <i class="fa-solid fa-circle-notch fa-spin text-xl"></i> 
+          <span>กำลังเตรียมแดชบอร์ด...</span>
+        </div>
+      </div>
+
     </div>
-    <div class="relative mb-6">
-      <input type="password" id="passcodeInput" placeholder="ระบุรหัสผ่าน..." class="w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50 outline-none text-center text-base font-bold tracking-widest focus:border-indigo-500 transition">
-      <button onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"><i id="eyeIcon" class="fa-solid fa-eye-slash"></i></button>
-    </div>
-    <button onclick="handleLogin()" id="loginBtn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 active:scale-95 transition-all text-sm">เข้าสู่ระบบ</button>
   </div>
 
   <div id="appSection" class="hidden w-full h-full flex flex-col md:flex-row bg-[#f3f6f9] opacity-0">
@@ -76,8 +113,8 @@
         <a onclick="switchMenu('competition')" id="menu-competition" class="sidebar-item block py-3 px-4 rounded-xl text-amber-600 font-bold border-t border-gray-50 mt-1 pt-2 hover:bg-amber-50"><i class="fa-solid fa-trophy w-5 mr-1 text-center"></i> แข่งขัน</a>
       </nav>
       <div class="p-4 space-y-2 border-t border-gray-50">
-        <button onclick="openProfileModal()" class="w-full py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-100 transition"><i class="fa-solid fa-user-gear mr-1"></i> จัดการโปรไฟล์</button>
-        <button onclick="logout()" class="w-full py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold hover:bg-rose-100 transition"><i class="fa-solid fa-power-off mr-1"></i> ออกจากระบบ</button>
+        <button onclick="openProfileModal()" class="w-full py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-100 transition active:scale-95"><i class="fa-solid fa-user-gear mr-1"></i> จัดการโปรไฟล์</button>
+        <button onclick="logout()" class="w-full py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold hover:bg-rose-100 transition active:scale-95"><i class="fa-solid fa-power-off mr-1"></i> ออกจากระบบ</button>
       </div>
     </aside>
 
@@ -85,7 +122,7 @@
       
       <div id="view-dashboard" class="max-w-5xl mx-auto space-y-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 bg-white p-6 rounded-2xl border shadow-sm">
-          <div><h2 class="text-2xl font-extrabold text-gray-800" id="greetingText">สวัสดี...</h2><p class="text-gray-500 text-sm mt-1">วันนี้คุณทำได้ดีมาก 🚀</p></div>
+          <div><h2 class="text-2xl font-extrabold text-gray-800" id="greetingText">กำลังโหลด...</h2><p class="text-gray-500 text-sm mt-1">วันนี้คุณทำได้ดีมาก 🚀</p></div>
           <span class="mt-3 md:mt-0 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100" id="currentDateDisplay"></span>
         </div>
 
@@ -101,33 +138,41 @@
                 <select id="dietGoalSelect" class="bg-indigo-600 text-white font-bold p-1 rounded-md outline-none cursor-pointer">
                   <option value="maintain">รักษาน้ำหนัก</option><option value="normal" selected>ลดปกติ (-500)</option><option value="hard">ลดโหด (-800)</option>
                 </select>
-                <button onclick="saveGoalAndAnalyze()" class="bg-emerald-500 px-2 rounded-md font-bold"><i class="fa-solid fa-check"></i></button>
+                <button onclick="saveGoalAndAnalyze()" class="bg-emerald-500 px-2 rounded-md font-bold hover:bg-emerald-600 transition"><i class="fa-solid fa-check"></i></button>
               </div>
             </div>
           </div>
 
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center items-center">
-            <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BMR</p><p class="text-xl font-black text-gray-200" id="analysisBMR">0</p></div>
+            <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BMR</p><p class="text-xl font-black text-gray-200" id="analysisBMR"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></p></div>
             <div class="lg:block hidden text-gray-600 text-sm"><i class="fa-solid fa-plus"></i></div>
-            <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BURN</p><p class="text-xl font-black text-orange-400" id="analysisBurnCal">0</p></div>
+            <div class="bg-white/5 p-3 rounded-xl"><p class="text-[9px] text-gray-400 font-bold mb-1 uppercase">BURN</p><p class="text-xl font-black text-orange-400" id="analysisBurnCal"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></p></div>
             <div class="lg:block hidden text-gray-600 text-sm"><i class="fa-solid fa-equals"></i></div>
-            <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20"><p class="text-[9px] text-indigo-300 font-bold mb-1 uppercase">TOTAL</p><p class="text-2xl font-black text-indigo-400" id="analysisTotalBurn">0</p></div>
-            <div class="col-span-2 bg-gradient-to-br from-emerald-500 to-teal-500 p-3 rounded-xl shadow-md border border-emerald-400/50"><p class="text-[9px] text-emerald-100 font-bold mb-1 uppercase">TARGET</p><p class="text-3xl font-black text-white" id="analysisTarget">0</p></div>
+            <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20"><p class="text-[9px] text-indigo-300 font-bold mb-1 uppercase">TOTAL</p><p class="text-2xl font-black text-indigo-400" id="analysisTotalBurn"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></p></div>
+            <div class="col-span-2 bg-gradient-to-br from-emerald-500 to-teal-500 p-3 rounded-xl shadow-md border border-emerald-400/50 transform scale-105"><p class="text-[9px] text-emerald-100 font-bold mb-1 uppercase">TARGET</p><p class="text-3xl font-black text-white" id="analysisTarget"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></p></div>
           </div>
 
           <div class="bg-gray-800/50 rounded-xl p-4 mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            <div class="md:col-span-3 text-center md:text-left"><p class="text-[10px] text-gray-400 font-bold mb-0.5">ทานไปแล้ว</p><p class="text-2xl font-black text-emerald-400"><span id="analysisFoodCal">0</span> <small class="text-xs font-normal">kcal</small></p></div>
-            <div class="md:col-span-9" id="energyAnalysisBox"></div>
+            <div class="md:col-span-3 text-center md:text-left"><p class="text-[10px] text-gray-400 font-bold mb-0.5">ทานไปแล้ว</p><p class="text-2xl font-black text-emerald-400"><span id="analysisFoodCal"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></span> <small class="text-xs font-normal text-gray-500">kcal</small></p></div>
+            <div class="md:col-span-9" id="energyAnalysisBox"><div class="p-4 rounded-xl flex items-center gap-3 bg-gray-700/50 text-gray-400 border border-gray-600"><i class="fa-solid fa-spinner fa-spin"></i><p class="font-bold text-sm">กำลังวิเคราะห์ข้อมูล...</p></div></div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">น้ำหนักปัจจุบัน</h3><p class="text-4xl font-black text-gray-800"><span id="dashWeight">0</span><small class="text-base font-normal ml-1 text-gray-400">kg</small></p><span class="text-xs text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full font-bold mt-2 inline-block">ลดไป <span id="dashLost">0</span> kg</span></div>
-          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">BMI</h3><p class="text-4xl font-black text-gray-800" id="dashBMI">0</p><span id="dashBMICat" class="text-[10px] bg-gray-50 border px-2 py-1 rounded-full font-bold mt-2 inline-block">-</span></div>
-          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Body Fat</h3><p class="text-4xl font-black text-gray-800"><span id="dashFat">0</span><small class="text-base font-normal ml-1 text-gray-400">%</small></p></div>
+          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">น้ำหนักปัจจุบัน</h3><p class="text-4xl font-black text-gray-800"><span id="dashWeight"><i class="fa-solid fa-circle-notch fa-spin text-xl text-gray-300"></i></span><small class="text-base font-normal ml-1 text-gray-400">kg</small></p><span class="text-xs text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full font-bold mt-2 inline-block border border-emerald-100">ลดไป <span id="dashLost">0</span> kg</span></div>
+          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">BMI</h3><p class="text-4xl font-black text-gray-800" id="dashBMI"><i class="fa-solid fa-circle-notch fa-spin text-xl text-gray-300"></i></p><span id="dashBMICat" class="text-[10px] bg-gray-50 border px-2 py-1 rounded-full font-bold mt-2 inline-block"><i class="fa-solid fa-circle-notch fa-spin"></i></span></div>
+          <div class="glass-card p-5 text-center"><h3 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Body Fat</h3><p class="text-4xl font-black text-gray-800"><span id="dashFat"><i class="fa-solid fa-circle-notch fa-spin text-xl text-gray-300"></i></span><small class="text-base font-normal ml-1 text-gray-400">%</small></p></div>
         </div>
 
-        <div class="glass-card p-6"><h3 class="text-base font-extrabold text-gray-800 mb-4 uppercase"><i class="fa-solid fa-fingerprint text-indigo-500 mr-2"></i> สถิติร่างกาย</h3><div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center" id="statGrid"></div></div>
+        <div class="glass-card p-6"><h3 class="text-base font-extrabold text-gray-800 mb-4 uppercase"><i class="fa-solid fa-fingerprint text-indigo-500 mr-2"></i> สถิติร่างกาย</h3>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center" id="statGrid">
+            <div class="bg-indigo-50 p-4 rounded-xl"><i class="fa-solid fa-spinner fa-spin text-indigo-400"></i></div>
+            <div class="bg-amber-50 p-4 rounded-xl"><i class="fa-solid fa-spinner fa-spin text-amber-400"></i></div>
+            <div class="bg-cyan-50 p-4 rounded-xl"><i class="fa-solid fa-spinner fa-spin text-cyan-400"></i></div>
+            <div class="bg-rose-50 p-4 rounded-xl"><i class="fa-solid fa-spinner fa-spin text-rose-400"></i></div>
+            <div class="bg-stone-50 p-4 rounded-xl"><i class="fa-solid fa-spinner fa-spin text-stone-400"></i></div>
+          </div>
+        </div>
       </div>
 
       <div id="view-food" class="hidden max-w-5xl mx-auto space-y-6">
@@ -139,7 +184,7 @@
               <div class="relative mb-4">
                 <input type="text" id="foodSearchInput" placeholder="พิมพ์ชื่อเมนูเพื่อค้นหา..." autocomplete="off" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border rounded-xl outline-none text-sm font-bold focus:border-blue-500 transition">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <div id="foodCustomDropdown" class="hidden absolute z-30 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+                <div id="foodCustomDropdown" class="hidden absolute z-30 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar"></div>
               </div>
               <div id="selectedFoodCard" class="hidden bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4 flex justify-between items-center">
                 <div><p class="text-[10px] text-blue-500 font-bold uppercase">เลือกแล้ว</p><p class="text-base font-bold text-blue-800" id="selectedFoodNameDisplay">-</p></div>
@@ -148,9 +193,9 @@
               <input type="hidden" id="hiddenFoodName"><input type="hidden" id="hiddenFoodCal" value="0">
               <label class="block text-[10px] font-bold text-gray-500 mb-1">ระบุจำนวน (จาน/ชิ้น)</label>
               <div class="flex items-center bg-white rounded-xl px-2 py-1 mb-4 border focus-within:border-blue-500 transition-colors">
-                <button onclick="changeQty('foodQty', -1); calcTotalFood()" class="text-gray-500 w-10 h-10 rounded-lg active:scale-90 bg-gray-50"><i class="fa-solid fa-minus"></i></button>
+                <button onclick="changeQty('foodQty', -1); calcTotalFood()" class="text-gray-500 w-10 h-10 rounded-lg active:scale-90 bg-gray-50 hover:text-blue-600 transition"><i class="fa-solid fa-minus"></i></button>
                 <input type="number" id="foodQty" value="1" min="1" oninput="calcTotalFood()" class="w-full text-center font-black text-2xl text-gray-800 outline-none border-none bg-transparent">
-                <button onclick="changeQty('foodQty', 1); calcTotalFood()" class="text-gray-500 w-10 h-10 rounded-lg active:scale-90 bg-gray-50"><i class="fa-solid fa-plus"></i></button>
+                <button onclick="changeQty('foodQty', 1); calcTotalFood()" class="text-gray-500 w-10 h-10 rounded-lg active:scale-90 bg-gray-50 hover:text-blue-600 transition"><i class="fa-solid fa-plus"></i></button>
               </div>
               <div class="bg-gray-800 rounded-xl p-4 text-center mb-4"><p class="text-[10px] text-gray-400 font-bold mb-0.5">แคลอรีรวมที่จะบันทึก</p><p class="text-3xl font-black text-white"><span id="displayTotalFoodCal">0</span> <small class="text-sm font-normal">kcal</small></p></div>
               <button onclick="addFood()" id="addFoodBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 active:scale-95 text-sm transition">บันทึกรายการอาหาร</button>
@@ -178,7 +223,7 @@
               <div class="relative mb-4">
                 <input type="text" id="exSearchInput" placeholder="พิมพ์เพื่อค้นหา..." autocomplete="off" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border rounded-xl outline-none font-bold text-sm focus:border-orange-500 transition">
                 <i class="fa-solid fa-person-running absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <div id="exCustomDropdown" class="hidden absolute z-30 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+                <div id="exCustomDropdown" class="hidden absolute z-30 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar"></div>
               </div>
               <div id="selectedExCard" class="hidden bg-orange-50 border border-orange-100 rounded-xl p-3 mb-4 flex items-center gap-3">
                  <div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-check"></i></div>
@@ -191,7 +236,7 @@
               </div>
               <label class="text-[10px] font-bold text-gray-500 mb-1 block uppercase">แคลอรีเผาผลาญ</label>
               <div class="relative mb-4">
-                <input type="number" id="exCal" placeholder="ดู Smart Watch" class="w-full p-3.5 bg-orange-50 border border-orange-200 rounded-xl outline-none font-black text-2xl text-orange-800 text-center">
+                <input type="number" id="exCal" placeholder="ดู Smart Watch" class="w-full p-3.5 bg-orange-50 border border-orange-200 rounded-xl outline-none font-black text-2xl text-orange-800 text-center focus:border-orange-400">
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-orange-500 text-sm">kcal</span>
               </div>
               <button onclick="addExercise()" id="addExBtn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-orange-600 text-sm active:scale-95 transition">บันทึกกิจกรรม</button>
@@ -216,7 +261,7 @@
           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="healthInputGrid">
              </div>
-          <button onclick="updateHealth()" id="updateHealthBtn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 active:scale-95 transition text-sm">บันทึกข้อมูลร่างกาย</button>
+          <button onclick="updateHealth()" id="updateHealthBtn" class="w-full max-w-sm mx-auto mt-8 bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 active:scale-95 transition text-sm"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกข้อมูลร่างกาย</button>
         </div>
       </div>
 
@@ -244,13 +289,13 @@
 
   <script>
     // =====================================
-    // ข้อมูลเริ่มต้น & Setup
+    // 1. ประกาศตัวแปรและข้อมูลพื้นฐาน 
     // =====================================
     const API_URL = "https://script.google.com/macros/s/AKfycbyYv_LR2CPfdeXjOVH7_MV4r4ETlQEWXH5bt9F25AV3vlSUGZtNi1onxTxG8aejsogk/exec"; 
     let currentUser = null, globalFoodDB = [], globalExDB = [];
     const goalLabels = { maintain: 'รักษาน้ำหนัก', normal: 'ลดปกติ (-500 kcal)', hard: 'ลดโหด (-800 kcal)' };
 
-    // ไอคอนออกกำลังกายถูกประกาศไว้ด้านบนสุด ป้องกัน Error 'getExIcon is not defined'
+    // ประกาศตรงนี้เพื่อป้องกัน Error "getExIcon is not defined"
     const exIcons = [ 
       { keys: ["วิ่ง", "ลู่"], bg: "bg-blue-100 text-blue-500 fa-person-running" }, 
       { keys: ["เดิน"], bg: "bg-emerald-100 text-emerald-500 fa-person-walking" }, 
@@ -265,21 +310,21 @@
         let m = exIcons.find(i => i.keys.some(k => n.toLowerCase().includes(k)));
         let c = m ? m.bg : "bg-slate-100 text-slate-500 fa-fire";
         let p = c.split(' '); 
-        return `<div class="w-10 h-10 rounded-full flex items-center justify-center ${p[0]} ${p[1]}"><i class="fa-solid ${p[2]} text-sm"></i></div>`; 
+        return `<div class="w-10 h-10 rounded-full flex items-center justify-center ${p[0]} ${p[1]} shadow-sm"><i class="fa-solid ${p[2]} text-sm"></i></div>`; 
     }
 
     // =====================================
-    // UI Helpers & Loading
+    // 2. UI Helpers & Loading
     // =====================================
     const setT = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
     const setH = (id, val) => { const el = document.getElementById(id); if(el) el.innerHTML = val; };
     const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
     
-    // โหลดดิ้งใหม่แบบป้องกันการบังคับปิด
+    // โหลดดิ้งที่ปลอดภัย (Safe Loader) ซ้อนกันได้
     let loadingCount = 0;
     function showL(t) { 
         loadingCount++;
-        setT('loadingText', t || "กำลังโหลดข้อมูล..."); 
+        setT('loadingText', t || "กำลังประมวลผล..."); 
         const o = document.getElementById('loadingOverlay');
         o.classList.remove('hidden'); o.classList.add('flex');
         requestAnimationFrame(() => o.classList.remove('opacity-0'));
@@ -299,8 +344,8 @@
     
     function showToast(msg, type='success') {
       const tc = document.getElementById('toastContainer'); const t = document.createElement('div');
-      t.className = `bg-white p-3 rounded-xl shadow-xl flex items-center gap-3 border-l-4 ${type==='success'?'border-emerald-500':'border-rose-500'} min-w-[250px] toast-enter text-sm`;
-      t.innerHTML = `<div class="w-8 h-8 rounded-full ${type==='success'?'bg-emerald-100 text-emerald-500':'bg-rose-100 text-rose-500'} flex items-center justify-center text-sm flex-shrink-0"><i class="fa-solid ${type==='success'?'fa-check':'fa-exclamation'}"></i></div> <p class="font-bold text-gray-700">${msg}</p>`;
+      t.className = `bg-white p-3 rounded-xl shadow-2xl flex items-center gap-3 border-l-4 ${type==='success'?'border-emerald-500':'border-rose-500'} min-w-[250px] toast-enter text-sm`;
+      t.innerHTML = `<div class="w-8 h-8 rounded-full ${type==='success'?'bg-emerald-100 text-emerald-500':'bg-rose-100 text-rose-500'} flex items-center justify-center text-sm flex-shrink-0"><i class="fa-solid ${type==='success'?'fa-check':'fa-exclamation'}"></i></div> <p class="font-bold text-gray-700 leading-tight">${msg}</p>`;
       tc.appendChild(t); setTimeout(() => { t.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => t.remove(), 400); }, 3000);
     }
 
@@ -320,12 +365,13 @@
     }
 
     // =====================================
-    // Core Functions (API & Init)
+    // 3. Core Functions & Login
     // =====================================
     async function callAPI(a, p={}) {
       try { 
         const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: a, ...p }) }); 
-        const d = await r.json(); 
+        const text = await r.text();
+        let d; try { d = JSON.parse(text); } catch(e) { throw new Error("การเชื่อมต่อ Web App ถูกปฏิเสธ โปรดเช็คสิทธิ์ (Anyone)"); }
         if(!d.success && d.message) throw new Error(d.message); 
         return d; 
       } 
@@ -334,23 +380,51 @@
 
     async function handleLogin() {
       const p = document.getElementById('passcodeInput').value; if(!p) return; 
-      showL("กำลังตรวจสอบรหัส...");
+      
+      const btn = document.getElementById('loginBtn');
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังตรวจสอบ...`;
+      
       try { 
         const res = await callAPI('login', { passcode: p }); 
         currentUser = res; 
         localStorage.setItem('woodyHealthUser', JSON.stringify(res)); 
         
-        // เราจะไม่ซ่อน Loader ทันที แต่ให้ initApp จัดการโชว์ App ก่อน
-        await prepareApp();
-      } 
-      catch (err) { showToast(err.message, 'error'); hideL(); }
+        // แอนิเมชัน Premium Login
+        document.getElementById('loginForm').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('loginForm').classList.add('hidden');
+            const welcome = document.getElementById('welcomeScreen');
+            welcome.classList.remove('hidden');
+            welcome.classList.add('flex');
+            setT('welcomeName', `ยินดีต้อนรับคุณ ${currentUser.name} 🎉`);
+            requestAnimationFrame(() => welcome.classList.remove('opacity-0'));
+            
+            setTimeout(() => {
+                prepareApp(); 
+                
+                // คืนค่าฟอร์ม Login เผื่อ Logout กลับมา
+                setTimeout(() => {
+                    document.getElementById('loginForm').classList.remove('hidden');
+                    document.getElementById('loginForm').style.opacity = '1';
+                    welcome.classList.add('hidden');
+                    welcome.classList.remove('flex');
+                    welcome.classList.add('opacity-0');
+                    document.getElementById('passcodeInput').value = '';
+                    btn.innerHTML = `เข้าสู่ระบบ <i class="fa-solid fa-arrow-right-to-bracket"></i>`;
+                }, 1000);
+            }, 1800);
+        }, 500);
+
+      } catch (err) { 
+        showToast(err.message, 'error'); 
+        btn.innerHTML = `เข้าสู่ระบบ <i class="fa-solid fa-arrow-right-to-bracket"></i>`;
+      }
     }
 
-    // แยกกระบวนการเริ่มแอปออกมาเพื่อป้องกัน UI โชว์ตอนยังโหลดไม่เสร็จ
+    // หน้าโหลดก่อนเข้าแอปแบบเนียนๆ
     async function prepareApp() {
       if(!currentUser || !currentUser.userId) { logout(); return; }
       
-      showL("กำลังดึงข้อมูลของคุณอยู่ โปรดรอสักครู่...");
       document.getElementById('loginSection').style.display = 'none'; 
       document.getElementById('bodyContainer').classList.remove('bg-animate');
       
@@ -362,15 +436,12 @@
       initHealthInputs(); 
       resetInactivityTimer();
 
-      // ดึงข้อมูลแดชบอร์ดให้เสร็จก่อน
+      showL("กำลังซิงค์ข้อมูลกับระบบ...");
       await refreshDashboard();
       
-      // เมื่อทุกอย่างเสร็จแล้ว ค่อยเปิดม่าน!
       const appSec = document.getElementById('appSection');
       appSec.classList.remove('hidden');
       requestAnimationFrame(() => appSec.classList.add('app-ready'));
-      
-      hideL();
     }
 
     function updateGreeting() {
@@ -382,7 +453,6 @@
       try {
         const d = await callAPI('getDashboard', { userId: currentUser.userId, initialWeight: currentUser.initialWeight, height: currentUser.height });
         if(d.foodDB) globalFoodDB = d.foodDB; if(d.exerciseDB) globalExDB = d.exerciseDB;
-        
         const s = d.dashboard;
         ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein'].forEach(k => setT(`dash${k}`, s[k.toLowerCase()]||"-"));
         
@@ -397,14 +467,11 @@
           <div class="bg-rose-50/50 p-4 rounded-xl border border-rose-100 hover:shadow-sm transition"><p class="text-[9px] text-rose-500 font-black mb-1 uppercase tracking-wider">โปรตีน</p><p class="text-xl font-black text-rose-800">${s.protein}<span class="text-xs font-normal ml-1">%</span></p></div>
           <div class="bg-stone-50/50 p-4 rounded-xl border border-stone-200 hover:shadow-sm transition"><p class="text-[9px] text-stone-600 font-black mb-1 uppercase tracking-wider">มวลกระดูก</p><p class="text-xl font-black text-stone-800">${s.bone}<span class="text-xs font-normal ml-1">kg</span></p></div>
         `);
-        
-        updateUI(d.food, d.exercise); 
-        initFoodSearch(); 
+
+        updateUI(d.food, d.exercise);
+        initFoodSearch();
         initExSearch();
-      } catch (err) { 
-        showToast("โหลดข้อมูลแดชบอร์ดไม่สำเร็จ", 'error'); 
-        console.error(err);
-      } 
+      } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ: " + err.message, 'error'); } finally { hideL(); }
     }
 
     function updateUI(f, e) {
@@ -425,10 +492,10 @@
       const totalBurn = bmr + burn, goal = localStorage.getItem('woodyDietGoal')||'normal', target = totalBurn - (goal==='normal'?500:goal==='hard'?800:0);
       setT('analysisTotalBurn', totalBurn); setT('analysisTarget', target);
       let t, c, i;
-      if(food>0 && food<bmr*0.8) { t="อันตราย! ต่ำกว่า BMR เสี่ยงโยโย่"; c="bg-rose-500 text-white"; i="fa-skull-crossbones"; }
-      else if(food>totalBurn+150) { t="ระวัง! รับเข้าเกินเผาผลาญ สะสมไขมัน"; c="bg-orange-500 text-white"; i="fa-triangle-exclamation"; }
-      else if(food>0) { t="โซนปลอดภัย สมดุลการเผาผลาญดี"; c="bg-emerald-500 text-white"; i="fa-shield-heart"; }
-      else { t="รอประมวลผลมื้ออาหาร..."; c="bg-slate-700 text-gray-400"; i="fa-clock"; }
+      if(food>0 && food<bmr*0.8) { t="อันตราย! ต่ำกว่า BMR เสี่ยงโยโย่"; c="bg-rose-500 text-white shadow-rose-500/40"; i="fa-skull-crossbones"; }
+      else if(food>totalBurn+150) { t="ระวัง! รับเข้าเกินเผาผลาญ สะสมไขมัน"; c="bg-orange-500 text-white shadow-orange-500/40"; i="fa-triangle-exclamation"; }
+      else if(food>0) { t="โซนปลอดภัย สมดุลการเผาผลาญดี"; c="bg-emerald-500 text-white shadow-emerald-500/40"; i="fa-shield-heart"; }
+      else { t="รอประมวลผลมื้ออาหาร..."; c="bg-slate-700 text-gray-400 shadow-slate-900/30"; i="fa-clock"; }
       setH('energyAnalysisBox', `<div class="p-4 rounded-xl flex items-center gap-3 shadow-md ${c} transition-all border border-white/10"><div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid ${i} text-lg"></i></div><div><p class="font-bold text-[9px] uppercase opacity-80 mb-0.5">ผลวิเคราะห์</p><p class="font-bold text-sm">${t}</p></div></div>`);
     }
 
@@ -436,11 +503,12 @@
       showL("กำลังโหลดตารางแข่งขัน...");
       try {
         const d = await callAPI('getLeaderboard');
-        setH('leaderboardContainer', d.leaderboard.map((u,i) => `<div class="bg-white p-4 rounded-2xl border ${i===0?'border-yellow-200 bg-yellow-50':'border-gray-100'} flex items-center justify-between mb-3 shadow-sm"><div class="flex items-center gap-4"><span class="text-lg font-black ${i===0?'text-yellow-500':i===1?'text-gray-400':i===2?'text-amber-600':'text-gray-200'} w-8 text-center">${i<3?'<i class="fa-solid fa-crown"></i>':'#'+(i+1)}</span><div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">${u.name[0]}</div><div><p class="font-bold text-gray-800 text-base">${u.name}</p><p class="text-[9px] text-gray-400 font-bold uppercase">Sync: ${u.lastUpdate}</p></div></div><div class="text-right"><p class="text-[9px] text-emerald-600 font-bold uppercase mb-0.5">ลดไปแล้ว</p><p class="text-2xl font-black text-emerald-500">${u.lost.toFixed(1)}<small class="text-xs ml-0.5">kg</small></p></div></div>`).join(''));
+        setH('leaderboardContainer', d.leaderboard.map((u,i) => `<div class="bg-white p-4 rounded-2xl border ${i===0?'border-yellow-200 bg-yellow-50':'border-gray-100'} flex items-center justify-between mb-3 shadow-sm hover:-translate-y-1 transition"><div class="flex items-center gap-4"><span class="text-lg font-black ${i===0?'text-yellow-500':i===1?'text-gray-400':i===2?'text-amber-600':'text-gray-200'} w-8 text-center">${i<3?'<i class="fa-solid fa-crown"></i>':'#'+(i+1)}</span><div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">${u.name[0]}</div><div><p class="font-bold text-gray-800 text-base">${u.name}</p><p class="text-[9px] text-gray-400 font-bold uppercase">Sync: ${u.lastUpdate}</p></div></div><div class="text-right"><p class="text-[9px] text-emerald-600 font-bold uppercase mb-0.5">ลดไปแล้ว</p><p class="text-2xl font-black text-emerald-500">${u.lost.toFixed(1)}<small class="text-xs ml-0.5 font-normal">kg</small></p></div></div>`).join(''));
       } catch(e) { setH('leaderboardContainer', '<p class="text-center text-rose-500 text-sm font-bold">ไม่สามารถดึงข้อมูลได้</p>'); }
       finally { hideL(); }
     }
 
+    // ================== ค้นหาและบันทึก ==================
     function initFoodSearch() {
       const inp = document.getElementById('foodSearchInput'), dd = document.getElementById('foodCustomDropdown');
       const newInp = inp.cloneNode(true); inp.parentNode.replaceChild(newInp, inp);
@@ -504,24 +572,24 @@
       try { const r = await callAPI('addExerciseToDB', { activityName: n }); globalExDB = r.exerciseDB; setVal('newExName', ''); showToast("เพิ่มกิจกรรมสำเร็จ"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
     async function deleteData(a, id) {
-      if(!confirm("ต้องการลบ?")) return; showL("กำลังลบ...");
-      try { const r = await callAPI(a, { logId: id, userId: currentUser.userId }); updateUI(r.food, r.exercise); showToast("ลบข้อมูลแล้ว"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
+      if(!confirm("ต้องการลบ?")) return; showL("ลบ...");
+      try { const r = await callAPI(a, { logId: id, userId: currentUser.userId }); updateUI(r.food, r.exercise); showToast("ลบแล้ว"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
 
     function initHealthInputs() {
       const fields = [
-        {id:'hWeight', lTh:'WEIGHT (kg)', c:'blue', icon:'fa-weight-scale'},
-        {id:'hFat', lTh:'FAT (%)', c:'orange', icon:'fa-fire'},
-        {id:'hMuscle', lTh:'MUSCLE (kg)', c:'indigo', icon:'fa-dumbbell'},
-        {id:'hVisceral', lTh:'VISCERAL (Lv)', c:'amber', icon:'fa-burger'},
-        {id:'hWater', lTh:'WATER (%)', c:'cyan', icon:'fa-droplet'},
-        {id:'hProtein', lTh:'PROTEIN (%)', c:'rose', icon:'fa-egg'},
-        {id:'hBone', lTh:'BONE (kg)', c:'stone', icon:'fa-bone'}
+        {id:'hWeight', lTh:'น้ำหนัก (Weight)', unit:'kg', c:'blue', icon:'fa-weight-scale'},
+        {id:'hFat', lTh:'เปอร์เซ็นต์ไขมัน (Body Fat)', unit:'%', c:'orange', icon:'fa-fire'},
+        {id:'hMuscle', lTh:'มวลกล้ามเนื้อ (Muscle Mass)', unit:'kg', c:'indigo', icon:'fa-dumbbell'},
+        {id:'hVisceral', lTh:'ไขมันช่องท้อง (Visceral Fat)', unit:'Lv', c:'amber', icon:'fa-burger'},
+        {id:'hWater', lTh:'ปริมาณน้ำ (Body Water)', unit:'%', c:'cyan', icon:'fa-droplet'},
+        {id:'hProtein', lTh:'โปรตีน (Protein)', unit:'%', c:'rose', icon:'fa-egg'},
+        {id:'hBone', lTh:'มวลกระดูก (Bone Mass)', unit:'kg', c:'stone', icon:'fa-bone'}
       ];
       setH('healthInputGrid', fields.map(f => `
-             <div class="bg-[#${f.c==='blue'?'eff4ff':f.c==='orange'?'fff7ed':f.c==='indigo'?'f3f0ff':f.c==='amber'?'fefce8':f.c==='cyan'?'ecfeff':f.c==='rose'?'fff1f2':'f8fafc'}] border border-[#${f.c==='blue'?'dbeafe':f.c==='orange'?'ffedd5':f.c==='indigo'?'ede9fe':f.c==='amber'?'fef08a':f.c==='cyan'?'cffafe':f.c==='rose'?'ffe4e6':'f1f5f9'}] p-4 rounded-xl flex flex-col justify-center">
-                 <div class="flex justify-center items-center text-[#${f.c==='blue'?'1e3a8a':f.c==='orange'?'c2410c':f.c==='indigo'?'4c1d95':f.c==='amber'?'854d0e':f.c==='cyan'?'0f766e':f.c==='rose'?'be123c':'334155'}] font-black text-[10px] uppercase tracking-wide mb-2"><i class="fa-solid ${f.icon} mr-1"></i> ${f.lTh}</div>
-                 <input type="number" step="0.1" id="${f.id}" class="w-full text-center py-2 rounded-lg border border-[#${f.c==='blue'?'bfdbfe':f.c==='orange'?'fed7aa':f.c==='indigo'?'ddd6fe':f.c==='amber'?'fde047':f.c==='cyan'?'a5f3fc':f.c==='rose'?'fecdd3':'e2e8f0'}] outline-none focus:border-[#${f.c==='blue'?'3b82f6':f.c==='orange'?'f97316':f.c==='indigo'?'8b5cf6':f.c==='amber'?'eab308':f.c==='cyan'?'06b6d4':f.c==='rose'?'f43f5e':'64748b'}] text-lg font-bold text-gray-800 shadow-inner bg-white">
+             <div class="bg-[#${f.c==='blue'?'eff4ff':f.c==='orange'?'fff7ed':f.c==='indigo'?'f3f0ff':f.c==='amber'?'fefce8':f.c==='cyan'?'ecfeff':f.c==='rose'?'fff1f2':'f8fafc'}] border border-[#${f.c==='blue'?'dbeafe':f.c==='orange'?'ffedd5':f.c==='indigo'?'ede9fe':f.c==='amber'?'fef08a':f.c==='cyan'?'cffafe':f.c==='rose'?'ffe4e6':'f1f5f9'}] p-5 rounded-2xl flex flex-col justify-center">
+                 <div class="flex justify-center items-center text-[#${f.c==='blue'?'1e3a8a':f.c==='orange'?'c2410c':f.c==='indigo'?'4c1d95':f.c==='amber'?'854d0e':f.c==='cyan'?'0f766e':f.c==='rose'?'be123c':'334155'}] font-black text-[10px] uppercase tracking-wide mb-3"><i class="fa-solid ${f.icon} mr-1"></i> ${f.lTh} (${f.unit})</div>
+                 <input type="number" step="0.1" id="${f.id}" class="w-full text-center py-2.5 rounded-xl border border-[#${f.c==='blue'?'bfdbfe':f.c==='orange'?'fed7aa':f.c==='indigo'?'ddd6fe':f.c==='amber'?'fde047':f.c==='cyan'?'a5f3fc':f.c==='rose'?'fecdd3':'e2e8f0'}] outline-none focus:border-[#${f.c==='blue'?'3b82f6':f.c==='orange'?'f97316':f.c==='indigo'?'8b5cf6':f.c==='amber'?'eab308':f.c==='cyan'?'06b6d4':f.c==='rose'?'f43f5e':'64748b'}] text-xl font-bold text-gray-800 shadow-inner bg-white">
              </div>
       `).join(''));
     }
@@ -540,17 +608,41 @@
       if(!o || !nm) return showToast("ใส่ข้อมูลให้ครบ", "error"); showL("อัปเดต...");
       try { const r = await callAPI('updateProfile', { userId: currentUser.userId, oldPass: o, newPass: n, newName: nm }); currentUser.name = r.newName; localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); setT('userNameDisplay', nm); setT('userNameInitial', nm[0].toUpperCase()); closeProfileModal(); showToast("อัปเดตสำเร็จ!"); updateGreeting(); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
+    
     async function saveGoalAndAnalyze() {
       const g = document.getElementById('dietGoalSelect').value; showL("อัปเดตเป้าหมาย...");
       try { await callAPI('updateDietGoal', { userId: currentUser.userId, goal: g }); currentUser.dietGoal = g; localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); localStorage.setItem('woodyDietGoal', g); setT('goalText', goalLabels[g]); toggleGoalEdit(false); analyzeEnergySafety(); showToast("สำเร็จ"); } catch(e) { showToast(e.message, 'error'); } finally { hideL(); }
     }
 
     let inactT, countI;
-    function resetInactivityTimer() { clearTimeout(inactT); clearInterval(countI); const m = document.getElementById('autoLogoutModal'); m.classList.add('opacity-0'); document.getElementById('autoLogoutBox').classList.add('scale-95'); document.getElementById('autoLogoutBox').classList.remove('scale-100'); setTimeout(()=> {m.classList.add('hidden'); m.classList.remove('flex');}, 300); inactT = setTimeout(() => { m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=>{m.classList.remove('opacity-0'); document.getElementById('autoLogoutBox').classList.remove('scale-95'); document.getElementById('autoLogoutBox').classList.add('scale-100');}); let tl = 30; setT('countdownTimer', tl); countI = setInterval(() => { tl--; setT('countdownTimer', tl); if(tl <= 0) logout(); }, 1000); }, 14.5 * 60 * 1000); }
+    function resetInactivityTimer() { clearTimeout(inactT); clearInterval(countI); const m = document.getElementById('autoLogoutModal'); m.classList.add('opacity-0'); setTimeout(()=> {m.classList.add('hidden'); m.classList.remove('flex');}, 300); inactT = setTimeout(() => { m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=>{m.classList.remove('opacity-0');}); let tl = 30; setT('countdownTimer', tl); countI = setInterval(() => { tl--; setT('countdownTimer', tl); if(tl <= 0) logout(); }, 1000); }, 14.5 * 60 * 1000); }
     function continueSession() { resetInactivityTimer(); }
     function toggleGoalEdit(e) { document.getElementById('goalDisplayMode').classList[e?'add':'remove']('hidden'); document.getElementById('goalEditMode').classList[e?'remove':'add']('hidden'); }
     
-    document.addEventListener("DOMContentLoaded", () => { const u = localStorage.getItem('woodyHealthUser'); if(u) { currentUser = JSON.parse(u); prepareApp(); } });
+    document.addEventListener("DOMContentLoaded", () => { 
+        const u = localStorage.getItem('woodyHealthUser'); 
+        if(u) { 
+            currentUser = JSON.parse(u); 
+            if(currentUser.userId) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('appSection').classList.remove('hidden');
+                document.getElementById('bodyContainer').classList.remove('bg-animate');
+                
+                setT('userNameDisplay', currentUser.name); setT('userNameInitial', currentUser.name[0].toUpperCase());
+                const savedGoal = currentUser.dietGoal || localStorage.getItem('woodyDietGoal') || 'normal';
+                setVal('dietGoalSelect', savedGoal); setT('goalText', goalLabels[savedGoal]);
+                
+                updateGreeting(); 
+                initHealthInputs(); 
+                resetInactivityTimer();
+                
+                const appSec = document.getElementById('appSection');
+                requestAnimationFrame(() => appSec.classList.add('app-ready'));
+                
+                refreshDashboard(); 
+            }
+        } 
+    });
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
   </script>
 </body>
