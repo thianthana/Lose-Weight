@@ -30,17 +30,17 @@
       <p class="text-gray-500 text-sm">กรุณากรอกรหัสผ่านเพื่อเริ่มติดตามสุขภาพ</p>
     </div>
     <input type="password" id="passcodeInput" placeholder="รหัสผ่าน..." class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-400 outline-none mb-4 text-center text-lg">
-    <button onclick="handleLogin()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition duration-300 shadow-lg">เข้าสู่ระบบ</button>
+    <button onclick="handleLogin()" id="loginBtn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition duration-300 shadow-lg">เข้าสู่ระบบ</button>
   </div>
 
   <div id="appSection" class="hidden w-full h-full p-4 md:p-8 overflow-y-auto">
     
-    <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6">
+    <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6 gap-4">
       <div>
         <h1 class="text-xl md:text-2xl font-bold gradient-text">ยินดีต้อนรับ, <span id="userNameDisplay"></span></h1>
       </div>
       <div class="flex gap-4">
-        <button onclick="exportData()" class="text-blue-500 hover:text-blue-700 font-medium"><i class="fa-solid fa-file-export mr-1"></i> ส่งออกข้อมูล</button>
+        <button onclick="exportData()" class="text-blue-500 hover:text-blue-700 font-medium"><i class="fa-solid fa-file-export mr-1"></i> ชีตข้อมูล</button>
         <button onclick="logout()" class="text-red-500 hover:text-red-700 font-medium"><i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบ</button>
       </div>
     </div>
@@ -75,14 +75,14 @@
         <div class="space-y-4">
           <div>
             <label class="block text-gray-600 text-sm mb-1">ชื่อเมนูอาหาร</label>
-            <input type="text" id="foodName" placeholder="เช่น ข้าวผัดไก่, อกไก่ปั่น..." class="w-full px-4 py-2 rounded border outline-none focus:border-blue-500">
+            <input type="text" id="foodName" placeholder="เช่น อกไก่ต้ม, ไข่ต้ม 3 ฟอง..." class="w-full px-4 py-2 rounded border outline-none focus:border-blue-500">
           </div>
           <div>
             <label class="block text-gray-600 text-sm mb-1">จำนวนแคลอรี (Kcal)</label>
             <input type="number" id="foodCal" placeholder="เว้นว่างไว้เพื่อใช้ AI วิเคราะห์..." class="w-full px-4 py-2 rounded border outline-none focus:border-blue-500">
             <p class="text-xs text-gray-400 mt-1">*หากไม่ทราบ ปล่อยว่างไว้ ระบบจะใช้ Gemini AI ประเมินให้</p>
           </div>
-          <button onclick="addFood()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-lg transition"><i class="fa-solid fa-robot mr-2"></i> บันทึกเมนู</button>
+          <button id="addFoodBtn" onclick="addFood()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-lg transition"><i class="fa-solid fa-robot mr-2"></i> บันทึกเมนู</button>
         </div>
       </div>
 
@@ -130,31 +130,62 @@
             <input type="number" id="hSteps" placeholder="เช่น 10000" class="w-full px-4 py-2 rounded border outline-none">
          </div>
        </div>
-       <button onclick="updateHealth()" class="w-full mt-6 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition shadow-md">บันทึกข้อมูลสุขภาพ</button>
+       <button id="updateHealthBtn" onclick="updateHealth()" class="w-full mt-6 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition shadow-md">บันทึกข้อมูลสุขภาพ</button>
     </div>
 
   </div>
 
   <script>
+    // -------------------------------------------------------------
+    // ตั้งค่าตัวแปรหลัก
+    // นำ URL Web App ของ Google Apps Script มาใส่ที่นี่ (ห้ามลืม!)
+    // -------------------------------------------------------------
+    const API_URL = "https://script.google.com/macros/s/AKfycbw2blxTNDPjT9nHTmH-HvI_AmkaxcvqbVz3sHuUzkrR0UFq_ETKV60zTTPYEP_O6KTN/exec"; 
     let currentUser = null;
 
+    // -------------------------------------------------------------
+    // ฟังก์ชันจัดการเชื่อมต่อ (Fetch Helper)
+    // -------------------------------------------------------------
+    async function callAPI(action, payloadData = {}) {
+      const payload = { action: action, ...payloadData };
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        return await response.json();
+      } catch (error) {
+        console.error("API Error:", error);
+        throw new Error("ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้");
+      }
+    }
+
+    // -------------------------------------------------------------
     // การจัดการ UI Tabs
+    // -------------------------------------------------------------
     function switchTab(tabId) {
       document.getElementById('foodTab').classList.add('hidden');
       document.getElementById('healthTab').classList.add('hidden');
       document.getElementById(tabId).classList.remove('hidden');
     }
 
-    // ฟังก์ชันเข้าสู่ระบบ
-    function handleLogin() {
+    // -------------------------------------------------------------
+    // ระบบ Login & Logout
+    // -------------------------------------------------------------
+    async function handleLogin() {
       const pass = document.getElementById('passcodeInput').value;
       if (!pass) return alert("กรุณากรอกรหัสผ่าน");
       
-      const btn = event.target;
+      const btn = document.getElementById('loginBtn');
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังตรวจสอบ...';
-      
-      google.script.run.withSuccessHandler(res => {
+      btn.disabled = true;
+
+      try {
+        const res = await callAPI('login', { passcode: pass });
         btn.innerHTML = 'เข้าสู่ระบบ';
+        btn.disabled = false;
+
         if (res.success) {
           currentUser = res;
           document.getElementById('loginSection').style.display = 'none';
@@ -164,9 +195,13 @@
           document.getElementById('userNameDisplay').innerText = currentUser.name;
           refreshDashboard();
         } else {
-          alert(res.message);
+          alert(res.message || "รหัสผ่านไม่ถูกต้อง");
         }
-      }).verifyLogin(pass);
+      } catch (err) {
+        alert(err.message);
+        btn.innerHTML = 'เข้าสู่ระบบ';
+        btn.disabled = false;
+      }
     }
 
     function logout() {
@@ -177,20 +212,32 @@
       document.getElementById('passcodeInput').value = '';
     }
 
-    // โหลดข้อมูล Dashboard และ อาหาร
-    function refreshDashboard() {
-      // ดึงสถิติน้ำหนักและแฟต
-      google.script.run.withSuccessHandler(data => {
-        document.getElementById('dashWeight').innerText = data.currentWeight;
-        document.getElementById('dashLost').innerText = data.weightLost.toFixed(1);
-        document.getElementById('dashFat').innerText = data.bodyFat;
-      }).getDashboardData(currentUser.userId, currentUser.initialWeight);
+    // -------------------------------------------------------------
+    // จัดการ Dashboard และ ข้อมูลอาหาร
+    // -------------------------------------------------------------
+    async function refreshDashboard() {
+      try {
+        const data = await callAPI('getDashboard', { 
+          userId: currentUser.userId, 
+          initialWeight: currentUser.initialWeight 
+        });
 
-      // ดึงรายการอาหารวันนี้
-      google.script.run.withSuccessHandler(updateFoodTable).getTodayFood(currentUser.userId);
+        // อัปเดตสถิติสุขภาพ
+        if(data.dashboard) {
+          document.getElementById('dashWeight').innerText = data.dashboard.currentWeight;
+          document.getElementById('dashLost').innerText = data.dashboard.weightLost.toFixed(1);
+          document.getElementById('dashFat').innerText = data.dashboard.bodyFat;
+        }
+
+        // อัปเดตตารางอาหาร
+        if(data.food) {
+          updateFoodTable(data.food);
+        }
+      } catch (err) {
+        console.error("Failed to load dashboard data");
+      }
     }
 
-    // อัปเดตตารางและรวมแคลอรี
     function updateFoodTable(data) {
       document.getElementById('dashCalories').innerText = data.total;
       const tbody = document.getElementById('foodTableBody');
@@ -215,62 +262,87 @@
       });
     }
 
-    // เพิ่มอาหาร
-    function addFood() {
+    // -------------------------------------------------------------
+    // ฟังก์ชันเพิ่ม-ลบ ข้อมูล
+    // -------------------------------------------------------------
+    async function addFood() {
       const name = document.getElementById('foodName').value;
       const cal = document.getElementById('foodCal').value;
       if (!name) return alert("กรุณาใส่ชื่อเมนูอาหาร");
 
-      const btn = event.target;
+      const btn = document.getElementById('addFoodBtn');
       const originalText = btn.innerHTML;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
       btn.disabled = true;
 
-      google.script.run.withSuccessHandler(data => {
-        updateFoodTable(data);
+      try {
+        const newData = await callAPI('addFood', { 
+          userId: currentUser.userId, 
+          foodName: name, 
+          calories: cal 
+        });
+        
+        updateFoodTable(newData);
         document.getElementById('foodName').value = '';
         document.getElementById('foodCal').value = '';
+      } catch (err) {
+        alert(err.message);
+      } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
-      }).saveFoodLog(currentUser.userId, name, cal);
-    }
-
-    // ลบอาหาร
-    function deleteFood(logId) {
-      if(confirm("ต้องการลบรายการนี้ใช่หรือไม่?")) {
-        google.script.run.withSuccessHandler(updateFoodTable).deleteFoodLog(logId, currentUser.userId);
       }
     }
 
-    // อัปเดตสุขภาพ
-    function updateHealth() {
+    async function deleteFood(logId) {
+      if(confirm("ต้องการลบรายการนี้ใช่หรือไม่?")) {
+        try {
+          const newData = await callAPI('deleteFood', { 
+            logId: logId, 
+            userId: currentUser.userId 
+          });
+          updateFoodTable(newData);
+        } catch (err) {
+          alert("ลบข้อมูลไม่สำเร็จ");
+        }
+      }
+    }
+
+    async function updateHealth() {
       const w = document.getElementById('hWeight').value;
       const f = document.getElementById('hFat').value;
       const i = document.getElementById('hIF').value;
       const p = document.getElementById('hProtein').value;
       const s = document.getElementById('hSteps').value;
 
-      const btn = event.target;
-      btn.innerHTML = 'กำลังบันทึก...';
+      const btn = document.getElementById('updateHealthBtn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+      btn.disabled = true;
       
-      google.script.run.withSuccessHandler(() => {
+      try {
+        await callAPI('updateHealth', { 
+          userId: currentUser.userId, 
+          weight: w, fat: f, ifHours: i, protein: p, steps: s 
+        });
+        
         alert("บันทึกข้อมูลสุขภาพเรียบร้อยแล้ว");
-        btn.innerHTML = 'บันทึกข้อมูลสุขภาพ';
-        refreshDashboard(); // รีเฟรชหน้าบอร์ด
+        refreshDashboard();
+        
         // เคลียร์ฟอร์ม
-        document.getElementById('hWeight').value = '';
-        document.getElementById('hFat').value = '';
-        document.getElementById('hIF').value = '';
-        document.getElementById('hProtein').value = '';
-        document.getElementById('hSteps').value = '';
-        switchTab('foodTab'); // กลับไปหน้าแรก
-      }).saveHealthLog(currentUser.userId, w, f, i, p, s);
+        ['hWeight', 'hFat', 'hIF', 'hProtein', 'hSteps'].forEach(id => document.getElementById(id).value = '');
+        switchTab('foodTab');
+      } catch (err) {
+        alert("บันทึกข้อมูลไม่สำเร็จ");
+      } finally {
+        btn.innerHTML = 'บันทึกข้อมูลสุขภาพ';
+        btn.disabled = false;
+      }
     }
 
     function exportData() {
-      google.script.run.withSuccessHandler(url => {
-        window.open(url, '_blank');
-      }).getExportUrl();
+      // เมื่ออยู่บน GitHub อาจจะส่งไปที่หน้า Google Sheet ตรงๆ ง่ายที่สุดครับ
+      // เปลี่ยน URL ด้านล่างเป็นลิงก์ Google Sheet ของคุณ
+      const sheetUrl = "https://docs.google.com/spreadsheets/d/ใส่_ID_ชีตของคุณ/edit";
+      window.open(sheetUrl, '_blank');
     }
   </script>
 </body>
