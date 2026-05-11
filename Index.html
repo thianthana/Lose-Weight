@@ -14,20 +14,13 @@
     .sidebar-item:hover:not(.sidebar-active) { background-color: #f8fafc; }
     input[type="password"]::-ms-reveal { display: none; }
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
     
-    /* Animation สำหรับ Background Login */
-    .bg-animate {
-      background: linear-gradient(-45deg, #4f46e5, #3b82f6, #06b6d4, #8b5cf6);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-    }
+    .bg-animate { background: linear-gradient(-45deg, #4f46e5, #3b82f6, #06b6d4, #8b5cf6); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
-    /* Toast Animation */
     .toast-enter { animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     .toast-leave { animation: toastOut 0.3s ease-in forwards; }
     @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -43,6 +36,17 @@
     </div>
   </div>
 
+  <div id="autoLogoutModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] hidden flex items-center justify-center">
+    <div class="bg-white p-8 rounded-[2rem] shadow-2xl text-center max-w-sm mx-4 transform scale-95 transition-transform duration-300">
+      <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500 text-3xl">
+        <i class="fa-solid fa-hourglass-half fa-spin-pulse"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">เซสชันกำลังหมดอายุ</h3>
+      <p class="text-gray-500 mb-6">คุณไม่ได้ใช้งานระบบเป็นเวลา 15 นาที ระบบจะออกจากระบบอัตโนมัติในอีก <br><span id="countdownTimer" class="text-3xl font-black text-rose-500">30</span> วินาที</p>
+      <button onclick="continueSession()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg text-lg">ใช้เว็บไซต์ต่อ</button>
+    </div>
+  </div>
+
   <div id="toastContainer" class="fixed top-6 right-6 z-[110] flex flex-col gap-3"></div>
 
   <div id="loginSection" class="bg-white/95 backdrop-blur-xl p-10 w-full max-w-md mx-4 rounded-[2.5rem] shadow-2xl relative">
@@ -54,14 +58,13 @@
       <p class="text-gray-500 font-medium mt-1">ยกระดับสุขภาพของคุณไปอีกขั้น</p>
     </div>
     <div class="relative mb-8">
-      <input type="password" id="passcodeInput" placeholder="ใส่รหัสประจำตัวของท่าน..." class="w-full pl-6 pr-12 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 outline-none transition text-center text-xl font-bold tracking-[0.3em] text-indigo-900 shadow-inner">
+      <input type="password" id="passcodeInput" placeholder="ใส่รหัสประจำตัวของท่าน..." class="w-full pl-6 pr-12 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 outline-none transition text-center text-lg font-bold tracking-wider text-indigo-900 shadow-inner">
       <button onclick="togglePassword()" class="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600"><i id="eyeIcon" class="fa-solid fa-eye-slash text-xl"></i></button>
     </div>
     <button onclick="handleLogin()" id="loginBtn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-200 transition-all text-lg transform hover:-translate-y-1">เข้าสู่ระบบ</button>
   </div>
 
   <div id="appSection" class="hidden w-full h-full flex flex-col md:flex-row bg-[#f3f6f9]">
-    
     <aside class="w-full md:w-64 bg-white border-r border-gray-100 flex flex-col z-10 shadow-sm">
       <div class="p-8 text-center border-b border-gray-50">
         <div class="w-16 h-16 bg-gradient-to-tr from-indigo-100 to-blue-50 rounded-2xl mx-auto flex items-center justify-center mb-3">
@@ -75,6 +78,7 @@
           <li><a onclick="switchMenu('food')" id="menu-food" class="sidebar-item block py-3.5 px-5 rounded-2xl text-gray-600"><i class="fa-solid fa-utensils w-6 mr-1"></i> บันทึกอาหาร</a></li>
           <li><a onclick="switchMenu('exercise')" id="menu-exercise" class="sidebar-item block py-3.5 px-5 rounded-2xl text-gray-600"><i class="fa-solid fa-person-running w-6 mr-1"></i> ออกกำลังกาย</a></li>
           <li><a onclick="switchMenu('health')" id="menu-health" class="sidebar-item block py-3.5 px-5 rounded-2xl text-gray-600"><i class="fa-solid fa-scale-balanced w-6 mr-1"></i> ข้อมูลร่างกาย</a></li>
+          <li class="pt-2 mt-2 border-t border-gray-100"><a onclick="switchMenu('competition')" id="menu-competition" class="sidebar-item block py-3.5 px-5 rounded-2xl text-amber-600 hover:bg-amber-50 font-bold"><i class="fa-solid fa-trophy w-6 mr-1"></i> แข่งขัน</a></li>
         </ul>
       </nav>
       <div class="p-6 border-t border-gray-50 space-y-2">
@@ -84,19 +88,14 @@
     </aside>
 
     <main class="flex-1 p-6 md:p-10 overflow-y-auto relative">
-      
       <div id="view-dashboard" class="animate-fade-in max-w-6xl mx-auto space-y-8">
-        
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 bg-gradient-to-r from-white to-blue-50/50 p-8 rounded-3xl border border-white shadow-sm">
           <div>
             <h2 class="text-3xl font-extrabold text-gray-800" id="greetingText">สวัสดียามเช้า, Woody</h2>
             <p class="text-gray-500 mt-2 font-medium">ลุยกันต่อ! วันนี้คุณทำได้ดีมาก 🚀</p>
           </div>
-          <div class="mt-4 md:mt-0 text-right">
-            <span class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl"><i class="fa-solid fa-calendar-day mr-2"></i><span id="currentDateDisplay"></span></span>
-          </div>
+          <div class="mt-4 md:mt-0 text-right"><span class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl"><i class="fa-solid fa-calendar-day mr-2"></i><span id="currentDateDisplay"></span></span></div>
         </div>
-
         <div class="bg-gray-900 rounded-[2rem] p-8 text-white shadow-xl shadow-gray-900/20 relative overflow-hidden">
           <i class="fa-solid fa-bolt absolute right-[-20px] bottom-[-20px] text-9xl opacity-10"></i>
           <h3 class="text-gray-400 font-semibold mb-6 flex items-center"><i class="fa-solid fa-calculator mr-2 text-indigo-400"></i> แคลอรีสุทธิ (Net Calories)</h3>
@@ -108,7 +107,6 @@
             <div class="bg-gradient-to-br from-indigo-600 to-blue-500 p-5 rounded-2xl shadow-lg border border-indigo-400/30"><p class="text-sm text-indigo-100 mb-1">แคลอรีสุทธิ</p><p class="text-4xl font-black text-white" id="dashNetCal">0</p></div>
           </div>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
@@ -128,7 +126,6 @@
             <p class="text-5xl font-black text-gray-800 my-2 z-10"><span id="dashFat">--</span><span class="text-xl font-normal text-gray-400 ml-1">%</span></p>
           </div>
         </div>
-
         <div class="glass-card p-8">
           <h3 class="text-lg font-extrabold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-fingerprint text-indigo-500 mr-2 text-xl"></i> สถิติร่างกายเชิงลึก</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -137,12 +134,8 @@
             <div class="bg-cyan-50/50 p-5 rounded-2xl border border-cyan-100"><p class="text-xs text-cyan-500 font-bold mb-1"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ</p><p class="text-2xl font-bold text-cyan-800"><span id="dashWater">-</span><span class="text-sm font-normal text-cyan-600 ml-1">%</span></p></div>
             <div class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100"><p class="text-xs text-rose-400 font-bold mb-1"><i class="fa-solid fa-egg mr-1"></i> โปรตีน</p><p class="text-2xl font-bold text-rose-800"><span id="dashProtein">-</span><span class="text-sm font-normal text-rose-600 ml-1">%</span></p></div>
             <div class="bg-stone-50/50 p-5 rounded-2xl border border-stone-200"><p class="text-xs text-stone-500 font-bold mb-1"><i class="fa-solid fa-bone mr-1"></i> มวลกระดูก</p><p class="text-2xl font-bold text-stone-800"><span id="dashBone">-</span><span class="text-sm font-normal text-stone-600 ml-1">kg</span></p></div>
-            
             <div class="col-span-1 md:col-span-3 bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-2xl border border-emerald-100 flex items-center justify-between">
-              <div>
-                <p class="text-sm text-emerald-600 font-extrabold uppercase mb-1"><i class="fa-solid fa-bolt mr-1"></i> BMR (คำนวณอัตโนมัติ)</p>
-                <p class="text-xs text-emerald-500">อิงตามหลักวิทยาศาสตร์ (Mifflin-St Jeor)</p>
-              </div>
+              <div><p class="text-sm text-emerald-600 font-extrabold uppercase mb-1"><i class="fa-solid fa-bolt mr-1"></i> BMR (คำนวณอัตโนมัติ)</p><p class="text-xs text-emerald-500">อิงตามหลักวิทยาศาสตร์ (Mifflin-St Jeor)</p></div>
               <p class="text-3xl font-black text-emerald-700"><span id="dashBMR">-</span> <span class="text-base font-normal">kcal</span></p>
             </div>
           </div>
@@ -205,7 +198,7 @@
         <h2 class="text-3xl font-bold text-gray-800 mb-2">บันทึกการออกกำลังกาย</h2>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div class="lg:col-span-5 space-y-6">
-            <div class="glass-card p-8">
+            <div class="glass-card p-8 border-t-4 border-orange-500">
               <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-fire-flame-curved text-orange-500 mr-2"></i>บันทึกกิจกรรม</h3>
               <div class="relative mb-6">
                 <div class="relative">
@@ -252,9 +245,8 @@
         <div class="glass-card p-10">
           <div class="text-center mb-10 border-b border-gray-100 pb-8">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-2">อัปเดตข้อมูล Smart Scale</h2>
-            <p class="text-gray-500 font-medium">ส่วนนี้ถูกปรับให้เหลือเฉพาะค่าที่อ่านได้จากเครื่องชั่งโดยตรงเท่านั้น (ตัดค่าที่ระบบคำนวณให้อัตโนมัติออกเพื่อความสะดวกรวดเร็ว)</p>
+            <p class="text-gray-500 font-medium">บันทึกข้อมูลจากเครื่องชั่งเพื่อให้สถิติบน Dashboard แม่นยำที่สุด</p>
           </div>
-          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
             <div class="space-y-6">
               <div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100">
@@ -266,7 +258,6 @@
                 <input type="number" step="0.1" id="hFat" class="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl outline-none focus:border-orange-500 text-lg font-bold text-center">
               </div>
             </div>
-
             <div class="space-y-6">
               <div class="bg-indigo-50/60 p-5 rounded-2xl border border-indigo-100">
                 <label class="block text-sm font-bold text-indigo-800 mb-2"><i class="fa-solid fa-dumbbell mr-1"></i> มวลกล้ามเนื้อ (kg)</label>
@@ -277,7 +268,6 @@
                 <input type="number" id="hVisceral" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl outline-none focus:border-amber-500 text-lg font-bold text-center">
               </div>
             </div>
-
             <div class="space-y-6">
               <div class="bg-cyan-50/60 p-5 rounded-2xl border border-cyan-100">
                 <label class="block text-sm font-bold text-cyan-800 mb-2"><i class="fa-solid fa-droplet mr-1"></i> ปริมาณน้ำ (%)</label>
@@ -298,6 +288,18 @@
           <button id="updateHealthBtn" onclick="updateHealth()" class="w-full mt-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition text-lg">บันทึกข้อมูลลงฐานข้อมูล</button>
         </div>
       </div>
+
+      <div id="view-competition" class="hidden animate-fade-in max-w-4xl mx-auto space-y-6">
+        <div class="text-center mb-8">
+          <div class="inline-block bg-amber-100 text-amber-600 p-4 rounded-full mb-4"><i class="fa-solid fa-trophy text-4xl"></i></div>
+          <h2 class="text-3xl font-extrabold text-gray-800">ตารางผู้นำการลดน้ำหนัก</h2>
+          <p class="text-gray-500 font-medium mt-2">แข่งขันและเป็นแรงบันดาลใจให้กันและกัน</p>
+        </div>
+        <div class="glass-card p-6 md:p-10 bg-white">
+          <div id="leaderboardContainer" class="space-y-4">
+            </div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -305,12 +307,10 @@
     <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="passModalContent">
       <h3 class="text-2xl font-bold text-gray-800 mb-2">เปลี่ยนรหัสประจำตัว</h3>
       <p class="text-gray-500 text-sm mb-6">กรุณากรอกรหัสเดิมและรหัสใหม่ของท่าน</p>
-      
       <div class="space-y-4 mb-6">
         <input type="password" id="oldPass" placeholder="รหัสผ่านเดิม" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 font-bold text-center tracking-widest text-lg">
         <input type="password" id="newPass" placeholder="รหัสผ่านใหม่" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 font-bold text-center tracking-widest text-lg text-indigo-600">
       </div>
-      
       <div class="flex gap-3">
         <button onclick="closePasswordModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200 transition">ยกเลิก</button>
         <button onclick="saveNewPassword()" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-md">ยืนยัน</button>
@@ -321,77 +321,89 @@
   <style>.animate-fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }</style>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxT9TZItOojOUIQ7gxuOmud2kojc44mRdD5B6mgbj01bljnzSVL9ZqMc-s9BpvPb8iL/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycby8Cqr_NyZ_RBP2fsN2Uya8HBoQc2-S78hD2dZ5BGAkWZeAmvgWR8RUoi9_oK0hcqFo/exec"; 
     
     let currentUser = null;
     let globalFoodDB = []; 
     let globalExDB = [];
 
-    // ระบบทักทาย
-    function updateGreeting() {
-      const hr = new Date().getHours();
-      let greet = hr < 12 ? "สวัสดียามเช้า" : hr < 18 ? "สวัสดียามบ่าย" : "สวัสดียามเย็น";
-      const name = currentUser ? currentUser.name : "Woody";
-      document.getElementById('greetingText').innerText = `${greet}, ${name}`;
+    // ================= Auto Logout Session =================
+    let inactivityTimeout;
+    let countdownInterval;
+    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 นาที
+    const WARNING_TIME = 30000; // 30 วินาที
+
+    function resetInactivityTimer() {
+      if(!currentUser) return;
+      clearTimeout(inactivityTimeout);
+      clearInterval(countdownInterval);
+      document.getElementById('autoLogoutModal').classList.add('hidden');
+      inactivityTimeout = setTimeout(showAutoLogoutWarning, INACTIVITY_LIMIT - WARNING_TIME);
     }
 
-    // วันที่
+    function showAutoLogoutWarning() {
+      document.getElementById('autoLogoutModal').classList.remove('hidden');
+      let timeLeft = 30;
+      document.getElementById('countdownTimer').innerText = timeLeft;
+      countdownInterval = setInterval(() => {
+        timeLeft--; document.getElementById('countdownTimer').innerText = timeLeft;
+        if (timeLeft <= 0) { clearInterval(countdownInterval); logout(); }
+      }, 1000);
+    }
+
+    function continueSession() { resetInactivityTimer(); }
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
+
+    // เช็ก LocalStorage ตอนโหลดหน้า
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedUser = localStorage.getItem('woodyHealthUser');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('appSection').classList.remove('hidden');
+        document.getElementById('bodyContainer').classList.remove('bg-animate');
+        document.getElementById('userNameDisplay').innerText = currentUser.name;
+        document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
+        updateGreeting(); refreshDashboard(); resetInactivityTimer();
+      }
+    });
+
+    // ================= UI Helpers =================
+    function updateGreeting() {
+      const hr = new Date().getHours(); let greet = hr < 12 ? "สวัสดียามเช้า" : hr < 18 ? "สวัสดียามบ่าย" : "สวัสดียามเย็น";
+      document.getElementById('greetingText').innerText = `${greet}, ${currentUser ? currentUser.name : 'Woody'}`;
+    }
+
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('th-TH', options);
 
-    // Toast Notification (แทน alert)
     function showToast(message, type = 'success') {
-      const toastContainer = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>' : '<i class="fa-solid fa-circle-exclamation text-red-500 text-xl"></i>';
-      const border = type === 'success' ? 'border-emerald-200' : 'border-red-200';
-      
-      toast.className = `bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3 border ${border} min-w-[300px] toast-enter`;
-      toast.innerHTML = `${icon} <p class="font-bold text-gray-700">${message}</p>`;
-      
-      toastContainer.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.replace('toast-enter', 'toast-leave');
-        setTimeout(() => toast.remove(), 400);
-      }, 3000);
+      const tc = document.getElementById('toastContainer'); const t = document.createElement('div');
+      const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>' : '<i class="fa-solid fa-circle-exclamation text-rose-500 text-xl"></i>';
+      t.className = `bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3 border ${type === 'success' ? 'border-emerald-200' : 'border-rose-200'} min-w-[300px] toast-enter`;
+      t.innerHTML = `${icon} <p class="font-bold text-gray-700">${message}</p>`;
+      tc.appendChild(t); setTimeout(() => { t.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => t.remove(), 400); }, 3000);
     }
 
-    // Loading Overlay
-    function showLoading(text = "กำลังประมวลผล...") {
-      document.getElementById('loadingText').innerText = text;
-      document.getElementById('loadingOverlay').classList.remove('hidden');
-    }
+    function showLoading(text = "กำลังประมวลผล...") { document.getElementById('loadingText').innerText = text; document.getElementById('loadingOverlay').classList.remove('hidden'); }
     function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
-
-    // ไอคอนออกกำลังกาย
-    const exIcons = [
-      { keys: ["วิ่ง", "ลู่"], bg: "bg-blue-100 text-blue-500", icon: "fa-person-running" },
-      { keys: ["เดิน"], bg: "bg-emerald-100 text-emerald-500", icon: "fa-person-walking" },
-      { keys: ["เวท", "น้ำหนัก", "ดัมเบล"], bg: "bg-purple-100 text-purple-500", icon: "fa-dumbbell" },
-      { keys: ["ว่าย"], bg: "bg-cyan-100 text-cyan-500", icon: "fa-person-swimming" },
-      { keys: ["จักรยาน", "ปั่น"], bg: "bg-orange-100 text-orange-500", icon: "fa-person-biking" },
-      { keys: ["โยคะ", "ยืด"], bg: "bg-teal-100 text-teal-500", icon: "fa-child-reaching" },
-      { keys: ["เต้น", "แอโรบิค"], bg: "bg-rose-100 text-rose-500", icon: "fa-music" }
-    ];
 
     function togglePassword() { const i = document.getElementById('passcodeInput'); i.type = i.type === 'password' ? 'text' : 'password'; }
     document.getElementById("passcodeInput").addEventListener("keypress", e => { if (e.key === "Enter") handleLogin(); });
 
     function switchMenu(viewName) {
-      ['dashboard', 'food', 'exercise', 'health'].forEach(n => {
-        document.getElementById(`view-${n}`).classList.add('hidden');
-        document.getElementById(`menu-${n}`).classList.remove('sidebar-active', 'text-indigo-600');
+      ['dashboard', 'food', 'exercise', 'health', 'competition'].forEach(n => {
+        document.getElementById(`view-${n}`).classList.add('hidden'); document.getElementById(`menu-${n}`).classList.remove('sidebar-active', 'text-indigo-600');
       });
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
       document.getElementById(`menu-${viewName}`).classList.add('sidebar-active', 'text-indigo-600');
       if(viewName === 'dashboard') updateGreeting();
+      if(viewName === 'competition') loadLeaderboard();
     }
 
     async function callAPI(action, payloadData = {}) {
       const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, ...payloadData }) });
-      const data = await res.json();
-      if (!data.success && data.message) throw new Error(data.message);
-      return data;
+      const data = await res.json(); if (!data.success && data.message) throw new Error(data.message); return data;
     }
 
     async function handleLogin() {
@@ -400,55 +412,83 @@
       try {
         const res = await callAPI('login', { passcode: pass });
         currentUser = res; 
+        localStorage.setItem('woodyHealthUser', JSON.stringify(currentUser)); // บันทึกลงเครื่อง
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('appSection').classList.remove('hidden');
         document.getElementById('bodyContainer').classList.remove('bg-animate');
         document.getElementById('userNameDisplay').innerText = currentUser.name;
         document.getElementById('userNameInitial').innerText = currentUser.name.charAt(0).toUpperCase();
-        updateGreeting();
-        refreshDashboard();
+        updateGreeting(); refreshDashboard(); resetInactivityTimer();
       } catch (err) { showToast(err.message, 'error'); hideLoading(); } 
     }
     
-    function logout() { location.reload(); }
+    function logout() { localStorage.removeItem('woodyHealthUser'); location.reload(); }
 
-    // Modal รหัสผ่าน
-    function openPasswordModal() { 
-      document.getElementById('passwordModal').classList.remove('hidden'); 
-      setTimeout(()=> document.getElementById('passModalContent').classList.remove('scale-95'), 10);
-    }
-    function closePasswordModal() { 
-      document.getElementById('passModalContent').classList.add('scale-95');
-      setTimeout(()=> document.getElementById('passwordModal').classList.add('hidden'), 300);
-      document.getElementById('oldPass').value = ''; document.getElementById('newPass').value = '';
-    }
+    function openPasswordModal() { document.getElementById('passwordModal').classList.remove('hidden'); setTimeout(()=> document.getElementById('passModalContent').classList.remove('scale-95'), 10); }
+    function closePasswordModal() { document.getElementById('passModalContent').classList.add('scale-95'); setTimeout(()=> document.getElementById('passwordModal').classList.add('hidden'), 300); document.getElementById('oldPass').value = ''; document.getElementById('newPass').value = ''; }
+    
     async function saveNewPassword() {
       const oldP = document.getElementById('oldPass').value; const newP = document.getElementById('newPass').value;
       if(!oldP || !newP) return showToast('กรุณากรอกข้อมูลให้ครบ', 'error');
-      showLoading("กำลังเปลี่ยนรหัสผ่าน...");
+      showLoading("กำลังเปลี่ยนรหัส...");
       try {
         await callAPI('changePassword', { userId: currentUser.userId, oldPass: oldP, newPass: newP });
-        showToast("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว"); closePasswordModal();
+        showToast("เปลี่ยนรหัสเรียบร้อยแล้ว"); closePasswordModal();
       } catch (e) { showToast(e.message, 'error'); } finally { hideLoading(); }
     }
 
     async function refreshDashboard() {
       try {
         const data = await callAPI('getDashboard', { userId: currentUser.userId, initialWeight: currentUser.initialWeight, height: currentUser.height });
-        if(data.foodDB) globalFoodDB = data.foodDB;
-        if(data.exerciseDB) globalExDB = data.exerciseDB;
-        
+        if(data.foodDB) globalFoodDB = data.foodDB; if(data.exerciseDB) globalExDB = data.exerciseDB;
         if(data.dashboard) {
           const db = data.dashboard;
           ['Weight', 'BMI', 'Fat', 'Muscle', 'Bone', 'Visceral', 'Water', 'Protein', 'BMR'].forEach(id => {
-            let el = document.getElementById(`dash${id}`);
-            if(el) el.innerText = db[id.toLowerCase()] || db[id.charAt(0).toLowerCase() + id.slice(1)];
+            let el = document.getElementById(`dash${id}`); if(el) el.innerText = db[id.toLowerCase()] || db[id.charAt(0).toLowerCase() + id.slice(1)];
           });
-          document.getElementById('dashLost').innerText = db.weightLost.toFixed(1);
-          document.getElementById('dashBMICat').innerText = db.bmiCategory;
+          document.getElementById('dashLost').innerText = db.weightLost.toFixed(1); document.getElementById('dashBMICat').innerText = db.bmiCategory;
         }
         updateUI(data.food, data.exercise);
       } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ", 'error'); } finally { hideLoading(); }
+    }
+
+    // ================= Leaderboard (แข่งขัน) =================
+    async function loadLeaderboard() {
+      const box = document.getElementById('leaderboardContainer');
+      box.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-indigo-500 text-3xl"></i></div>';
+      try {
+         const res = await callAPI('getLeaderboard');
+         if (res.leaderboard) renderLeaderboard(res.leaderboard);
+      } catch (e) { box.innerHTML = '<div class="text-center py-10 text-rose-500 font-bold">โหลดข้อมูลไม่สำเร็จ</div>'; }
+    }
+
+    function renderLeaderboard(data) {
+      const box = document.getElementById('leaderboardContainer'); box.innerHTML = '';
+      if(data.length === 0) { box.innerHTML = '<p class="text-center text-gray-400 py-10">ยังไม่มีข้อมูลในระบบ</p>'; return; }
+      
+      data.forEach((user, index) => {
+        let rankIcon = `<span class="text-2xl font-black text-gray-300">#${index+1}</span>`;
+        let bgStyle = "bg-white border-gray-100";
+        if (index === 0) { rankIcon = '<i class="fa-solid fa-crown text-yellow-400 text-3xl drop-shadow-md"></i>'; bgStyle = "bg-gradient-to-r from-yellow-50 to-white border-yellow-200"; }
+        else if (index === 1) { rankIcon = '<i class="fa-solid fa-medal text-gray-400 text-3xl drop-shadow-md"></i>'; bgStyle = "bg-gradient-to-r from-gray-50 to-white border-gray-200"; }
+        else if (index === 2) { rankIcon = '<i class="fa-solid fa-medal text-amber-600 text-3xl drop-shadow-md"></i>'; bgStyle = "bg-gradient-to-r from-orange-50 to-white border-orange-200"; }
+
+        box.innerHTML += `
+        <div class="${bgStyle} p-5 rounded-2xl shadow-sm border flex items-center justify-between hover:shadow-md transition">
+            <div class="flex items-center gap-5">
+                <div class="w-12 text-center">${rankIcon}</div>
+                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-400 flex items-center justify-center text-white font-black text-2xl shadow-md">${user.name.charAt(0)}</div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-xl">${user.name}</h4>
+                    <p class="text-xs text-gray-400"><i class="fa-regular fa-clock"></i> อัปเดตล่าสุด: ${user.lastUpdate}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-bold text-gray-400 mb-1">ลดไปแล้ว</p>
+                <p class="text-3xl font-black text-emerald-500">${user.lost > 0 ? '-' : ''}${user.lost.toFixed(1)} <span class="text-sm font-bold text-emerald-600/50">kg</span></p>
+            </div>
+        </div>`;
+      });
     }
 
     // ================= Custom Dropdown =================
@@ -537,10 +577,9 @@
       } catch (err) { showToast(err.message, 'error'); } finally { hideLoading(); }
     }
 
+    const exIcons = [ { keys: ["วิ่ง", "ลู่"], bg: "bg-blue-100 text-blue-500", icon: "fa-person-running" }, { keys: ["เดิน"], bg: "bg-emerald-100 text-emerald-500", icon: "fa-person-walking" }, { keys: ["เวท", "น้ำหนัก", "ดัมเบล"], bg: "bg-purple-100 text-purple-500", icon: "fa-dumbbell" }, { keys: ["ว่าย"], bg: "bg-cyan-100 text-cyan-500", icon: "fa-person-swimming" }, { keys: ["จักรยาน", "ปั่น"], bg: "bg-orange-100 text-orange-500", icon: "fa-person-biking" }, { keys: ["โยคะ", "ยืด"], bg: "bg-teal-100 text-teal-500", icon: "fa-child-reaching" }, { keys: ["เต้น", "แอโรบิค"], bg: "bg-rose-100 text-rose-500", icon: "fa-music" } ];
     function getExIcon(name) {
-      let match = exIcons.find(i => i.keys.some(k => name.toLowerCase().includes(k)));
-      let cls = match ? `${match.bg} ${match.icon}` : "bg-slate-100 text-slate-500 fa-fire";
-      let p1 = cls.split(' ')[0], p2 = cls.split(' ')[1], p3 = cls.split(' ')[2];
+      let match = exIcons.find(i => i.keys.some(k => name.toLowerCase().includes(k))); let cls = match ? `${match.bg} ${match.icon}` : "bg-slate-100 text-slate-500 fa-fire"; let p1 = cls.split(' ')[0], p2 = cls.split(' ')[1], p3 = cls.split(' ')[2];
       return `<div class="w-12 h-12 rounded-full flex items-center justify-center ${p1} ${p2}"><i class="fa-solid ${p3} text-xl"></i></div>`;
     }
 
@@ -552,7 +591,7 @@
         foodData.meals.forEach(m => {
           tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-blue-200 transition">
             <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i class="fa-solid fa-utensils"></i></div><p class="font-bold text-gray-700">${m.name}</p></div>
-            <div class="flex items-center gap-4"><p class="text-xl font-black text-blue-600">${m.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteFood', '${m.id}')" class="text-gray-300 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
+            <div class="flex items-center gap-4"><p class="text-xl font-black text-blue-600">${m.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteFood', '${m.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
       if(exData) {
@@ -562,7 +601,7 @@
         exData.activities.forEach(a => {
           tb.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm mb-3 flex justify-between items-center border border-gray-100 hover:border-orange-200 transition">
             <div class="flex items-center gap-4">${getExIcon(a.name)}<div><p class="font-bold text-gray-700">${a.name}</p><p class="text-xs font-medium text-gray-500 mt-0.5"><i class="fa-regular fa-clock mr-1"></i> ${a.duration} นาที &nbsp;|&nbsp; <i class="fa-solid fa-heart-pulse mr-1"></i> HR: ${a.hr}</p></div></div>
-            <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
+            <div class="flex items-center gap-4"><p class="text-xl font-black text-orange-500">${a.cal} <span class="text-xs font-normal text-gray-400">kcal</span></p><button onclick="deleteData('deleteExercise', '${a.id}')" class="text-gray-300 hover:text-rose-500 hover:bg-rose-50 w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div></div>`;
         });
       }
       const f = parseInt(document.getElementById('dashFoodCal').innerText)||0, b = parseInt(document.getElementById('dashBurnCal').innerText)||0;
